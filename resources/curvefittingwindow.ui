@@ -157,7 +157,7 @@ QToolButton:pressed {
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>../source/repos/mo-gaafar/Curve_Fitter/resources/icons/chunkkk.png</normaloff>../source/repos/mo-gaafar/Curve_Fitter/resources/icons/chunkkk.png</iconset>
+                   <normaloff>../resources/icons/chunkkk.png</normaloff>../resources/icons/chunkkk.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -209,7 +209,7 @@ QToolButton:pressed {
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>../source/repos/mo-gaafar/Curve_Fitter/resources/icons/spline-chart(2).png</normaloff>../source/repos/mo-gaafar/Curve_Fitter/resources/icons/spline-chart(2).png</iconset>
+                   <normaloff>../resources/icons/spline-chart(2).png</normaloff>../resources/icons/spline-chart(2).png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -295,7 +295,7 @@ QSpinBox::up-button:hover {
 }
 
 QSpinBox::up-arrow {
-    image: url(:/newPrefix/Arrowhead-Top-256.png);
+    image: url(:../resources/icons/Arrowhead-Top-256.png);
     width: 6px;
     height: 6px;
 }
@@ -314,7 +314,7 @@ QSpinBox::down-button:hover {
 }
 
 QSpinBox::down-arrow {
-    image: url(:/newPrefix/Arrowhead-nottop-256.png);
+    image: url(:../resources/icons/Arrowhead-nottop-256.png);
     width: 6px;
     height: 6px;
 }</string>
@@ -357,7 +357,7 @@ QSpinBox::up-button:hover {
 }
 
 QSpinBox::up-arrow {
-    image: url(:/newPrefix/Arrowhead-Top-256.png);
+    image: url(:../resources/icons/Arrowhead-Top-256.png);
     width: 6px;
     height: 6px;
 }
@@ -376,7 +376,7 @@ QSpinBox::down-button:hover {
 }
 
 QSpinBox::down-arrow {
-    image: url(:/newPrefix/Arrowhead-nottop-256.png);
+    image: url(:../resources/icons/Arrowhead-nottop-256.png);
     width: 6px;
     height: 6px;
 }</string>
@@ -455,7 +455,7 @@ QSpinBox::up-button:hover {
 }
 
 QSpinBox::up-arrow {
-    image: url(:/newPrefix/Arrowhead-Top-256.png);
+    image: url(:../resources/icons/Arrowhead-Top-256.png);
     width: 6px;
     height: 6px;
 }
@@ -474,7 +474,7 @@ QSpinBox::down-button:hover {
 }
 
 QSpinBox::down-arrow {
-    image: url(:/newPrefix/Arrowhead-nottop-256.png);
+    image: url(:../resources/icons/Arrowhead-nottop-256.png);
     width: 6px;
     height: 6px;
 }</string>
@@ -536,7 +536,7 @@ QSpinBox::down-arrow {
                     <string notr="true">QPushButton {
     border-radius: 5px;
     border-style: outset;
-    image: url(:/newPrefix/show.png);
+    image: url(:../resources/icons/show.png);
     background: rgb(12, 17, 24);
 	padding: 5;
     }
@@ -547,7 +547,7 @@ QPushButton:hover {
 
 QPushButton:pressed {
     border-style: inset;
-	image: url(:/newPrefix/hide.png);
+	image: url(:../resources/icons/hide.png);
     background: rgba(169, 169, 169, 50)
     }</string>
                    </property>
@@ -609,7 +609,7 @@ QSpinBox::up-button:hover {
 }
 
 QSpinBox::up-arrow {
-    image: url(:/newPrefix/Arrowhead-Top-256.png);
+    image: url(:../resources/icons/Arrowhead-Top-256.png);
     width: 6px;
     height: 6px;
 }
@@ -628,7 +628,7 @@ QSpinBox::down-button:hover {
 }
 
 QSpinBox::down-arrow {
-    image: url(:/newPrefix/Arrowhead-nottop-256.png);
+    image: url(:../resources/icons/Arrowhead-nottop-256.png);
     width: 6px;
     height: 6px;
 }</string>
@@ -674,7 +674,7 @@ QSpinBox::up-button:hover {
 }
 
 QSpinBox::up-arrow {
-    image: url(:/newPrefix/Arrowhead-Top-256.png);
+    image: url(:../resources/icons/Arrowhead-Top-256.png);
     width: 6px;
     height: 6px;
 }
@@ -693,7 +693,7 @@ QSpinBox::down-button:hover {
 }
 
 QSpinBox::down-arrow {
-    image: url(:/newPrefix/Arrowhead-nottop-256.png);
+    image: url(:../resources/icons/Arrowhead-nottop-256.png);
     width: 6px;
     height: 6px;
 }</string>
@@ -774,7 +774,7 @@ QSpinBox::up-button:hover {
 }
 
 QSpinBox::up-arrow {
-    image: url(:/newPrefix/Arrowhead-Top-256.png);
+    image: url(:../resources/icons/Arrowhead-Top-256.png);
     width: 6px;
     height: 6px;
 }
@@ -793,7 +793,7 @@ QSpinBox::down-button:hover {
 }
 
 QSpinBox::down-arrow {
-    image: url(:/newPrefix/Arrowhead-nottop-256.png);
+    image: url(:../resources/icons/Arrowhead-nottop-256.png);
     width: 6px;
     height: 6px;
 }</string>
@@ -938,7 +938,7 @@ background: rgb(85, 255, 255);
   <action name="actionOpen">
    <property name="icon">
     <iconset>
-     <normaloff>../source/repos/mo-gaafar/Mini_Music_Workstation/resources/icons/Open-256.png</normaloff>../source/repos/mo-gaafar/Mini_Music_Workstation/resources/icons/Open-256.png</iconset>
+     <normaloff>../resources/icons/Open-256.png</normaloff>../resources/icons/Open-256.png</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -954,7 +954,7 @@ background: rgb(85, 255, 255);
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../source/repos/mo-gaafar/Curve_Fitter/resources/icons/resources.qrc"/>
+  <include location="../source/repos/mo-gaafar/Curve_Fitter../resources/icons/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

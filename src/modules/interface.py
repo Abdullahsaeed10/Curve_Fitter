@@ -16,23 +16,24 @@ def about_us(self):
 
 
 def init_connectors(self):
-    '''Initializes all event connectors and triggers'''
+    # '''Initializes all event connectors and triggers'''
 
-    self.selection_tabWidget = self.findChild(
-        QTabWidget, "selection_tabWidget")
-    self.selection_tabWidget.currentChanged.connect(
-        lambda:  update_current_tab_index(self, self.selection_tabWidget.currentIndex()))
+    # self.selection_tabWidget = self.findChild(
+    #     QTabWidget, "selection_tabWidget")
+    # self.selection_tabWidget.currentChanged.connect(
+    #     lambda:  update_current_tab_index(self, self.selection_tabWidget.currentIndex()))
 
-    ''' Menu Bar'''
-    self.actionOpen = self.findChild(QAction, "actionOpen")
-    self.actionOpen.triggered.connect(
-        lambda: openfile.browse_window(self))
+    # ''' Menu Bar'''
+    # self.actionOpen = self.findChild(QAction, "actionOpen")
+    # self.actionOpen.triggered.connect(
+    #     lambda: openfile.browse_window(self))
 
-    self.actionAbout_us = self.findChild(QAction, "actionAbout_Us")
-    self.actionAbout_us.triggered.connect(
-        lambda: about_us(self))
+    # self.actionAbout_us = self.findChild(QAction, "actionAbout_Us")
+    # self.actionAbout_us.triggered.connect(
+    #     lambda: about_us(self))
 
-    # play button
-    self.play_pushButton = self.findChild(QPushButton, "play_pushButton")
-    self.play_pushButton.clicked.connect(
-        lambda: emphasizer.play(self))
+    # # play button
+    # self.play_pushButton = self.findChild(QPushButton, "play_pushButton")
+    # self.play_pushButton.clicked.connect(
+    #     lambda: emphasizer.play(self))
+    pass

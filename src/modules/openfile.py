@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QFileDialog
 import matplotlib.pyplot as plt
 import numpy as np
 
-from modules import spectrogram
 from modules.utility import print_debug
 from scipy.io import wavfile
 
@@ -46,7 +45,4 @@ def open_file(self, path):
     # TODO: for stereo multiply frate by 2
 
     time = np.linspace(0, len(signal) / f_rate, num=len(signal))
-
-    self.music_signal = MusicSignal(path, time, signal, f_rate)
     self.pointsToAppend = 0
-    spectrogram.plot_spectro(self)

@@ -9,6 +9,8 @@ class Signal():
 
         if self.fsample == 0:
             self.time = time
+            if len(time) != 0:
+                self.fsample = time[-1]/len(self.signal)
         else:
             self.time = np.arange(0, len(signal)) / fsample
         pass
@@ -47,6 +49,7 @@ class Processing():
 
 
 def update_graph(self):
+    self.curve_plot.plot(self.signal.time, self.signal.signal)
     pass
 
 

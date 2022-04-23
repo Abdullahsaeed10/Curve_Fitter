@@ -23,10 +23,10 @@ def init_connectors(self):
     # self.selection_tabWidget.currentChanged.connect(
     #     lambda:  update_current_tab_index(self, self.selection_tabWidget.currentIndex()))
 
-    # ''' Menu Bar'''
-    # self.actionOpen = self.findChild(QAction, "actionOpen")
-    # self.actionOpen.triggered.connect(
-    #     lambda: openfile.browse_window(self))
+    ''' Menu Bar'''
+    self.actionOpen = self.findChild(QAction, "actionOpen")
+    self.actionOpen.triggered.connect(
+        lambda: openfile.browse_window(self))
 
     # self.actionAbout_us = self.findChild(QAction, "actionAbout_Us")
     # self.actionAbout_us.triggered.connect(

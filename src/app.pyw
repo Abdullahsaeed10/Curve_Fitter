@@ -4,6 +4,7 @@ from PyQt5 import QtGui, QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QTabWidget
 from modules import interface
 from modules import resources
+from modules.curvefit import *
 
 import numpy as np
 from modules.utility import print_debug, print_log
@@ -21,11 +22,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # set the title and icon
         self.setWindowIcon(QtGui.QIcon('./resources/icons/icon.png'))
-        self.setWindowTitle("Music Workstation")
+        self.setWindowTitle("Curve Fitter")
 
         print_debug("Connectors Initialized")
 
         # initialize arrays and variables
+        self.curve_plot_ref = self.curve_plot.plot()
+        self.signal = Signal()
 
         self.toggle_play = 0
         self.toggle_apply = 0

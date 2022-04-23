@@ -6,14 +6,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from modules.utility import print_debug
-from scipy.io import wavfile
-
+from modules.curvefit import *
+from modules import curvefit
+import wfdb
+import csv
 
 
 def browse_window(self):
     self.graph_empty = False
     self.filename = QFileDialog.getOpenFileName(
-        None, 'open the signal file', './', filter="Raw Data(*.mp3 *.wav)")
+        None, 'open the signal file', './', filter="Raw Data(*.hea *.dat *.csv *.txt *.xls)")
     path = self.filename[0]
     print_debug("Selected path: " + path)
     open_file(self, path)
@@ -23,26 +25,30 @@ def browse_window(self):
 
 
 def open_file(self, path):
+    temp_time = []
+    temp_magnitude = []
+    temp_fsample = 0
 
-    # # reading the audio file
-    # raw = wave.open(path)
+    filetype = path[-3:]
 
-    # # reads all the frames
-    # # -1 indicates all or max frames
-    # signal = raw.readframes(-1)
+    if filetype == "rec" or filetype == "dat" or filetype == "hea":
 
-    # signal = np.frombuffer(signal, dtype=np.int16)
+        # open wfdb file
+        self.record = wfdb.rdrecord(path[:-4], channels=[0])
 
-    f_rate, signal = wavfile.read(path)
-    signal = np.int16(np.mean(signal, axis=1))
+        # update signal object
+        temp_magnitude = np.concatenate(
+            self.record.p_signal)
 
-    # gets the frame rate
-    # f_rate = raw.getframerate()
+        self.signal = Signal(signal=temp_magnitude, fsample=self.record.fs)
 
-    # n_channel = raw.getnchannels()
-    print_debug("framerate")
-    print_debug(f_rate)
-    # TODO: for stereo multiply frate by 2
+    if filetype == "csv" or filetype == "txt" or filetype == "xls":
+        with open(path, 'r') as csvFile:    # 'r' its a mode for reading and writing
+            csvReader = csv.reader(csvFile, delimiter=',')
+            for line in csvReader:
+                temp_magnitude.append(
+                    float(line[1]))
+                temp_time.append(float(line[0]))
 
-    time = np.linspace(0, len(signal) / f_rate, num=len(signal))
-    self.pointsToAppend = 0
+    print_debug("Record loaded")
+    curvefit.update_graph(self)

@@ -2,17 +2,33 @@
 
 from ctypes import util
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QTabWidget, QProgressBar, QMessageBox, QAction, QPushButton, QSlider, QComboBox, QLCDNumber, QStackedWidget, QStackedLayout, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QDial, QLabel, QGridLayout, QToolButton
+from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushButton, QSlider, QComboBox, QLCDNumber, QStackedWidget, QStackedLayout, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QDial, QLabel, QGridLayout, QToolButton
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
+from modules.curvefit import PolynomialInterpolation, update_graph
 from modules.utility import print_debug, print_log
-import math
 
 
 def about_us(self):
     QMessageBox.about(
         self, ' About ', 'This is a musical instruments emphasizer and a digital audio workstation \nCreated by junior students from the faculty of Engineering, Cairo University, Systems and Biomedical Engineering department \n \nTeam members: \n-Mohammed Nasser \n-Abdullah Saeed \n-Zeyad Mansour \n-Mariam Khaled \n \nhttps://github.com/mo-gaafar/Mini_Music_Workstation.git')
+
+
+def update_interpolation(self):
+    """Creates Interpolation object based on user input"""
+
+    print_debug("Updating Interpolation")
+
+    if self.chunk_button.isChecked():
+        order = int(self.polynomial_degree_spinBox.value())
+        self.signal_processor.set_interpolation(
+            PolynomialInterpolation(order=order))
+        update_graph(self)
+
+    elif self.spline_button.isChecked():
+        order = int(self.spline_order_comboBox.currentText())
+        # TODO:add spline interpolation
 
 
 def toggle_residuals_plot(self):
@@ -50,6 +66,7 @@ def init_connectors(self):
     self.chunk_button.setCheckable(True)
     self.chunk_button.setDown(True)
     self.chunk_button.setChecked(True)
+
     self.spline_options_widget.hide()
     self.chunk_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Chunk'))
@@ -63,6 +80,11 @@ def init_connectors(self):
     self.residuals_button.toggled.connect(
         lambda: toggle_residuals_plot(self))
 
+    self.polynomial_degree_spinBox = self.findChild(
+        QSpinBox, "polynomial_degree_spinBox")
+    self.polynomial_degree_spinBox.valueChanged.connect(
+        lambda: update_interpolation(self))
+
     ''' Menu Bar'''
     self.actionOpen = self.findChild(QAction, "actionOpen")
     self.actionOpen.triggered.connect(
@@ -72,8 +94,4 @@ def init_connectors(self):
     # self.actionAbout_us.triggered.connect(
     #     lambda: about_us(self))
 
-    # # play button
-    # self.play_pushButton = self.findChild(QPushButton, "play_pushButton")
-    # self.play_pushButton.clicked.connect(
-    #     lambda: emphasizer.play(self))
     pass

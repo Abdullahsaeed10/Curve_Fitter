@@ -1,3 +1,4 @@
+from importlib_metadata import NullFinder
 import numpy as np
 from numpy import fft
 from abc import ABC, abstractmethod
@@ -58,6 +59,10 @@ class Interpolation(ABC):
     def set_signal(self, signal: Signal()):
         """Sets the signal to be interpolated"""
 
+    @abstractmethod
+    def get_signal(self):
+        """Returns the interpolated signal object"""
+
 
 class PolynomialInterpolation(Interpolation):
     """Represents a polynomial curve interpolation method"""
@@ -71,6 +76,9 @@ class PolynomialInterpolation(Interpolation):
         """Sets the signal to be interpolated"""
         self.signal = signal
 
+    def get_signal(self):
+        return self.interpolated_signal
+
     def interpolate(self):
         """Interpolates the curve"""
 
@@ -80,20 +88,18 @@ class PolynomialInterpolation(Interpolation):
         self.interpolated_signal = Signal(signal=np.polyval(np.polyfit(
             self.signal.time, self.signal.signal, self.order), self.signal.time), fsample=self.signal.fsample)
 
-        self.interpolated_signal = Signal(np.zeros(len(self.signal)))
 
+# class SplineInterpolation(Interpolation):
+#     """Represents a spline curve interpolation method"""
 
-class SplineInterpolation(Interpolation):
-    """Represents a spline curve interpolation method"""
+#     def __init__(self, signal: np.ndarray = None, order: int = None, chunk_size=None, chunk_overlap=None):
+#         self.signal = signal
+#         self.order = order
+#         self.interpolated_signal = np.zeros(len(signal))
 
-    def __init__(self, signal: np.ndarray = None, order: int = None, chunk_size=None, chunk_overlap=None):
-        self.signal = signal
-        self.order = order
-        self.interpolated_signal = np.zeros(len(signal))
-
-    def interpolate(self):
-        """Interpolates the curve"""
-        return self.interpolated_signal
+#     def interpolate(self):
+#         """Interpolates the curve"""
+#         return self.interpolated_signal
 
 
 class SignalProcessor():
@@ -107,6 +113,12 @@ class SignalProcessor():
         self.interpolation = interpolation
         self.interpolation.set_signal(self.original_signal)
         self.interpolation.interpolate()
+
+    def isInterpolated(self):
+        if self.interpolation == None:
+            return False
+        else:
+            return True
 
     def extrapolate(self):
         pass
@@ -124,7 +136,12 @@ class SignalProcessor():
 
 
 def update_graph(self):
-    self.curve_plot.plot(self.signal.time, self.signal.signal)
+    if self.signal_processor.isInterpolated():
+        temp_signal = self.signal_processor.interpolation.get_signal()
+        self.curve_plot.plot(temp_signal.time, temp_signal.signal)
+    else:
+        self.curve_plot.plot(
+            self.signal_processor.original_signal.time, self.signal_processor.original_signal.signal)
     pass
 
 

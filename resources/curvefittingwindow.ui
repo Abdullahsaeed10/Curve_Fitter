@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>613</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -535,7 +535,7 @@ QSpinBox::down-arrow {
 }</string>
                    </property>
                    <property name="maximum">
-                    <number>100</number>
+                    <number>9</number>
                    </property>
                   </widget>
                  </item>
@@ -915,8 +915,26 @@ QGroupBox::title  {
            <string>Results</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item row="0" column="0">
-            <layout class="QVBoxLayout" name="latex_box"/>
+            <widget class="QWidget" name="" native="true">
+             <property name="styleSheet">
+              <string notr="true">background-color: transparent;</string>
+             </property>
+             <layout class="QVBoxLayout" name="latex_box">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+             </layout>
+            </widget>
            </item>
           </layout>
          </widget>

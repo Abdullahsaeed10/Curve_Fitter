@@ -33,6 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # initialize points to app
         self.pointsToAppend = 0
         interface.init_connectors(self)
+        latex(self)
 
 
 def main():

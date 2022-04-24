@@ -3,6 +3,11 @@ import numpy as np
 from numpy import fft
 from abc import ABC, abstractmethod
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
+
+plt.rc('mathtext', fontset='cm')
+
 from modules.utility import print_debug
 
 
@@ -148,3 +153,13 @@ def update_graph(self):
 def update_error_graph(self):
 
     pass
+
+def latex(self, formula = '', fontsize=12):
+    FORMULA = r'\int_{-\infty}^\infty e^{-x^2}\,dx = \sqrt{\pi}'
+    formula = FORMULA
+
+    fig = plt.figure()
+    fig.patch.set_facecolor('None')
+    fig.text(0, 0.7, r'${}$'.format(formula), fontsize=fontsize, color = 'white')
+    Latex = Canvas(fig)
+    self.latex_box.addWidget(Latex)

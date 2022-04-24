@@ -7,7 +7,7 @@ from modules import resources
 from modules.curvefit import *
 
 import numpy as np
-from modules.utility import print_debug, print_log
+from modules.utility import print_debug
 import sys
 
 
@@ -29,11 +29,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # initialize arrays and variables
         self.curve_plot_ref = self.curve_plot.plot()
         self.signal = Signal()
-
-        self.toggle_play = 0
-        self.toggle_apply = 0
-        self.pressed_key = ''
-        self.current_tab_index = 0
+        self.signal_processor = SignalProcessor()
         # initialize points to app
         self.pointsToAppend = 0
         interface.init_connectors(self)

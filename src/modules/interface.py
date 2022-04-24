@@ -14,6 +14,7 @@ def about_us(self):
     QMessageBox.about(
         self, ' About ', 'This is a musical instruments emphasizer and a digital audio workstation \nCreated by junior students from the faculty of Engineering, Cairo University, Systems and Biomedical Engineering department \n \nTeam members: \n-Mohammed Nasser \n-Abdullah Saeed \n-Zeyad Mansour \n-Mariam Khaled \n \nhttps://github.com/mo-gaafar/Mini_Music_Workstation.git')
 
+
 def toggle_residuals_plot(self):
     if self.residuals_button.isChecked():
         self.residuals_plot.hide()
@@ -21,8 +22,9 @@ def toggle_residuals_plot(self):
     else:
         self.residuals_plot.show()
 
-def toggle_fit_mode(self, MODE):
-    if MODE == 'Chunk':
+
+def toggle_fit_mode(self, mode):
+    if mode == 'Chunk':
         if self.spline_button.isChecked():
             self.spline_button.setDown(False)
             self.spline_button.setChecked(False)
@@ -44,7 +46,6 @@ def toggle_fit_mode(self, MODE):
 def init_connectors(self):
     # '''Initializes all event connectors and triggers'''
 
-
     self.chunk_button = self.findChild(QToolButton, "chunk_button")
     self.chunk_button.setCheckable(True)
     self.chunk_button.setDown(True)
@@ -61,11 +62,6 @@ def init_connectors(self):
     self.residuals_button.setCheckable(True)
     self.residuals_button.toggled.connect(
         lambda: toggle_residuals_plot(self))
-
-    # self.selection_tabWidget = self.findChild(
-    #     QTabWidget, "selection_tabWidget")
-    # self.selection_tabWidget.currentChanged.connect(
-    #     lambda:  update_current_tab_index(self, self.selection_tabWidget.currentIndex()))
 
     ''' Menu Bar'''
     self.actionOpen = self.findChild(QAction, "actionOpen")

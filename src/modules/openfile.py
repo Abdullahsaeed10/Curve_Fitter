@@ -1,8 +1,4 @@
-# OLD CODE... REMOVE THIS COMMENT WHEN DONE MODIFYING
-# TODO: should import wfdb and csv
-
 from PyQt5.QtWidgets import QFileDialog
-import matplotlib.pyplot as plt
 import numpy as np
 
 from modules.utility import print_debug
@@ -11,25 +7,31 @@ from modules import curvefit
 import wfdb
 import csv
 
+MAX_SAMPLES = 1000
+
 
 def browse_window(self):
+    """Open file dialog to select a file"""
     self.graph_empty = False
     self.filename = QFileDialog.getOpenFileName(
         None, 'open the signal file', './', filter="Raw Data(*.hea *.dat *.csv *.txt *.xls)")
     path = self.filename[0]
     print_debug("Selected path: " + path)
     open_file(self, path)
-    # play the sound
-
-# shows the sound waves
 
 
 def open_file(self, path):
+    """Open the file and read the data"""
+
     temp_time = []
     temp_magnitude = []
     temp_fsample = 0
 
     filetype = path[-3:]
+
+    if path == '' or filetype not in ['hea', 'dat', 'csv', 'txt', 'xls']:
+        print_debug("No file selected")
+        return
 
     if filetype == "rec" or filetype == "dat" or filetype == "hea":
 
@@ -48,7 +50,13 @@ def open_file(self, path):
             for line in csvReader:
                 temp_magnitude.append(
                     float(line[1]))
-                temp_time.append(float(line[0]))
+                temp_time.append(
+                    float(line[0]))
+        self.signal = Signal(signal=temp_magnitude, time=temp_time)
 
     print_debug("Record loaded")
+
+    self.signal.set_max_samples(MAX_SAMPLES)
+    self.signal_processor = SignalProcessor(self.signal)
+
     curvefit.update_graph(self)

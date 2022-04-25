@@ -47,6 +47,7 @@ class Signal():
 
     def clip(self, direction, percentage):
         """Clips the signal"""
+        percentage = percentage / 100
         if direction == "left":
             self.signal = self.signal[int(
                 len(self.signal) * (1 - percentage)):]
@@ -61,132 +62,77 @@ class Signal():
     def chunk(self, chunk_size):
         return [self.signal[i:i + chunk_size] for i in range(0, len(self.signal), chunk_size)]
 
-
-class Process(ABC):
-    """Represents a generic process"""
-
-    @abstractmethod
-    def set_signal(self, signal: Signal()):
-        """Sets the signal to be interpolated"""
-
-    @abstractmethod
-    def get_signal(self):
-        """Returns the processed signal object"""
-
-
-class Interpolation(Process):
-    """Represents a curve interpolation interface"""
-
-    @abstractmethod
-    def interpolate(self) -> Signal():
-        """Interpolates the curve"""
-
-
-class PolynomialInterpolation(Interpolation):
-    """Represents a polynomial curve interpolation method"""
-
-    def __init__(self, signal: Signal() = None, order: int = None):
-        self.signal = signal
-        self.order = order
-        self.interpolated_signal = Signal()
-
-    def set_signal(self, signal: np.ndarray):
-        """Sets the signal to be interpolated"""
-        self.signal = signal
-        self.interpolate()
-
-    def get_signal(self):
-        """Returns the interpolated signal object"""
-        return self.interpolated_signal
-
-    def interpolate(self):
-        """Interpolates the curve"""
-
-        if self.signal is None or self.order is None:
-            raise Exception("Signal and order must be set")
-
-        self.interpolated_signal = Signal(signal=np.polyval(np.polyfit(
-            self.signal.time, self.signal.signal, self.order), self.signal.time), fsample=self.signal.fsample)
-
-
-class SplineInterpolation(Interpolation):
-    """Represents a spline curve interpolation method"""
-
-    def __init__(self, signal: np.ndarray = None, order: int = None, chunk_size=None, chunk_overlap=None):
-        self.signal = signal
-        self.order = order
-        self.interpolated_signal = np.zeros(len(signal)) 
-
-    def interpolate(self):
-        """Interpolates the curve"""
-        return self.interpolated_signal
-
-
-class Extrapolation(Process):
-    """Represents an extrapolation interface"""
-
-    @abstractmethod
-    def extrapolate(self):
-        """Extrapolates the curve"""
-    @abstractmethod
-    def set_output_range(self, range_start: int, range_end: int):
-        """Sets the range of the output signal"""
-
-
-class LinearPredictiveCoding(Extrapolation):
-    """Represents a linear predictive coding extrapolation method"""
-
-    def __init__(self, signal: Signal() = None, order: int = None):
-        self.signal = signal
-        self.extrapolated_signal = Signal()
-
-    def set_signal(self, signal: Signal()):
-        """Sets the signal to be extrapolated"""
-        self.signal = signal
-        self.extrapolate()
+        self.chunk_count = len(self.chunks)
 
 
 class SignalProcessor():
     def __init__(self, original=Signal()) -> None:
+
         self.original_signal = original
-        self.output_signal = original
-        self.interpolation = None
-        self.extrapolation = None
+
+        self.clipped_signal = original
+        self.clip_percentage = 100
+
+        self.interpolation_type = None
+        self.interpolation_order = None
+        self.chunk_size = None
+
+        self.extrapolation_type = None
+
         self.interpolated_signal = original
         self.extrapolated_signal = original
+
+    def init_interpolation(self, interpolation_type: str = None, interpolation_order: int = 1, chunk_size: int = 0):
+        if interpolation_type == None:
+            raise Exception("Interpolation type must be set")
+
+        self.interpolation_type = interpolation_type
+        self.interpolation_order = interpolation_order
+        self.chunk_size = chunk_size
+        self.interpolate()
+
+    def interpolate(self):
+        type = self.interpolation_type
+        input = self.clipped_signal
+
+        if type == "polynomial":
+
+            self.interpolated_signal = Signal(signal=np.polyval(np.polyfit(
+                input.time, input.signal, self.interpolation_order), input.time), fsample=input.fsample)
+
+        if type == "spline":
+            for chunk in input:
+                """TODO: interpolate chunk by chunk and then add the overlap"""
+
+    def set_clipping(self, clip_percentage: int = 0):
+        if clip_percentage == 100:
+            raise Exception("Clip percentage cant be 100%")
+
+        self.clip_percentage = clip_percentage
+        self.clipped_signal = self.original_signal  # Resets the clipped signal
+        self.clipped_signal.clip("right", self.clip_percentage)
+        # interpolate
+        # extrapolate
+        # calculate error
+
+    def overlap_add(self, chunk_size: int = 1, overlap_size: int = 1):
+        # checks if last chunk
+        # if not either then add overlap to the end of the next chunk
         pass
 
     def isInterpolated(self):
-        if self.interpolation == None:
+        if self.interpolation_type == None:
             return False
         else:
             return True
 
     def isExtrapolated(self):
-        if self.extrapolation == None:
+        if self.extrapolation_type == None:
             return False
         else:
             return True
 
-    def set_clipping(self, clip_percentage: int = 0):
-        self.clip_percentage = clip_percentage
-
-        if self.isExtrapolated():
-            self.extrapolation.set_signal(
-                self.original_signal.clip("right", self.clip_percentage))
-
-    def set_interpolation(self, interpolation: Interpolation = PolynomialInterpolation()):
-        self.interpolation = interpolation
-        self.interpolation.set_signal(self.original_signal)
-
-    def set_extrapolation(self, extrapolation: Extrapolation = LinearPredictiveCoding()):
-        self.extrapolation = extrapolation
-        self.extrapolation.set_signal(self.original_signal)
-
-    def merge_output(self):
-        pass
-
-    def calculate_error(self):
+    def calculate_error(self, loading_counter: int = 0):
         # progress bar
 
         # multithreading
@@ -195,14 +141,17 @@ class SignalProcessor():
 
 
 def update_graph(self):
+    if self.signal_processor.clipped_signal != None:
+        draw = self.signal_processor.clipped_signal
+        self.curve_plot_ref.setData(draw.time, draw.signal)
+
     if self.signal_processor.isInterpolated():
-        temp_signal = self.signal_processor.interpolation.get_signal()
-        self.curve_plot_ref.setData(temp_signal.time, temp_signal.signal)
-    else:
-        self.curve_plot_ref.setData(
-            self.signal_processor.original_signal.time, self.signal_processor.original_signal.signal)
+        draw = self.signal_processor.interpolated_signal
+        self.curve_plot_interpolated.setData(draw.time, draw.signal)
+
     if self.signal_processor.isExtrapolated():
-        self.curve_plot
+        draw = self.signal_processor.extrapolated_signal
+        self.curve_plot_extrapolated.setData(draw.time, draw.signal)
 
 
 def update_error_graph(self):

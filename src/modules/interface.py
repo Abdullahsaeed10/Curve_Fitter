@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushB
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
-from modules.curvefit import PolynomialInterpolation, update_graph
+from modules.curvefit import update_graph
 from modules.utility import print_debug, print_log
 
 
@@ -20,15 +20,22 @@ def update_interpolation(self):
 
     print_debug("Updating Interpolation")
 
+    clipping = self.extrapolate_spinBox.value()
+    print_debug("Clipping: " + str(clipping))
+    self.signal_processor.set_clipping(clipping)
+    print_debug("Signal length: " + str(len(self.signal_processor.clipped_signal)))
+
     if self.chunk_button.isChecked():
         order = int(self.polynomial_degree_spinBox.value())
-        self.signal_processor.set_interpolation(
-            PolynomialInterpolation(order=order))
-        update_graph(self)
+        self.signal_processor.init_interpolation(
+            interpolation_type="polynomial", interpolation_order=order)
+        
 
     elif self.spline_button.isChecked():
         order = int(self.spline_order_comboBox.currentText())
         # TODO:add spline interpolation
+
+    update_graph(self)
 
 
 def toggle_residuals_plot(self):
@@ -83,6 +90,11 @@ def init_connectors(self):
     self.polynomial_degree_spinBox = self.findChild(
         QSpinBox, "polynomial_degree_spinBox")
     self.polynomial_degree_spinBox.valueChanged.connect(
+        lambda: update_interpolation(self))
+
+    self.extrapolate_spinBox = self.findChild(
+        QSpinBox, "extrapolate_spinBox")
+    self.extrapolate_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
 
     ''' Menu Bar'''

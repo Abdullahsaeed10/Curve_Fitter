@@ -27,7 +27,7 @@ class MainWindow(QtWidgets.QMainWindow):
         print_debug("Connectors Initialized")
 
         # initialize arrays and variables
-        self.curve_plot_ref = self.curve_plot.plot()
+        self.curve_plot_ = self.curve_plot.plot()
         self.signal = Signal()
         self.signal_processor = SignalProcessor()
         # initialize points to app

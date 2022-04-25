@@ -1,6 +1,5 @@
-# OLD CODE.. REMOVE THIS COMMENT WHEN DONE MODIFYING
 
-from ctypes import util
+from turtle import width
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushButton, QSlider, QComboBox, QLCDNumber, QStackedWidget, QStackedLayout, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QDial, QLabel, QGridLayout, QToolButton
 from PyQt5.QtGui import *
@@ -8,6 +7,7 @@ from PyQt5.QtCore import Qt
 from modules import openfile
 from modules.curvefit import update_graph
 from modules.utility import print_debug, print_log
+import pyqtgraph as pg
 
 
 def about_us(self):
@@ -23,27 +23,33 @@ def update_interpolation(self):
     clipping = self.extrapolate_spinBox.value()
     print_debug("Clipping: " + str(clipping))
     self.signal_processor.set_clipping(clipping)
-    print_debug("Signal length: " + str(len(self.signal_processor.clipped_signal)))
+    print_debug("Signal length: " +
+                str(len(self.signal_processor.clipped_signal)))
 
     if self.chunk_button.isChecked():
         order = int(self.polynomial_degree_spinBox.value())
         self.signal_processor.init_interpolation(
-            interpolation_type="polynomial", interpolation_order=order)
-        
+            type="polynomial", order=order)
 
     elif self.spline_button.isChecked():
         order = int(self.spline_order_comboBox.currentText())
+        chunk_size = int(self.chunk_number_spinBox.value())
         # TODO:add spline interpolation
+
+        self.signal_processor.init_interpolation(
+            type="spline",
+            order=order,
+            chunk_size=chunk_size)
 
     update_graph(self)
 
 
-def toggle_residuals_plot(self):
-    if self.residuals_button.isChecked():
-        self.residuals_plot.hide()
-        self.residuals_button.setDown(True)
+def toggle_error_plot(self):
+    if self.error_button.isChecked():
+        self.error_plot.hide()
+        self.error_button.setDown(True)
     else:
-        self.residuals_plot.show()
+        self.error_plot.show()
 
 
 def toggle_fit_mode(self, mode):
@@ -66,6 +72,19 @@ def toggle_fit_mode(self, mode):
         self.spline_button.setChecked(True)
 
 
+def init_plots(self):
+    # initializing plot widgets
+
+    pen = pg.mkPen(color=(150, 150, 150), width=2)
+    self.curve_plot_ref = self.curve_plot.plot(pen=pen)
+
+    pen = pg.mkPen(color=(255, 15, 10), width=2)
+    self.curve_plot_interpolated = self.curve_plot.plot(pen=pen)
+
+    pen = pg.mkPen(color=(15, 255, 10), style=QtCore.Qt.DotLine, width=2)
+    self.curve_polt_extrapolated = self.curve_plot.plot(pen=pen)
+
+
 def init_connectors(self):
     # '''Initializes all event connectors and triggers'''
 
@@ -82,10 +101,10 @@ def init_connectors(self):
     self.spline_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Spline'))
 
-    #self.residuals_button = self.findChild(QPushButton, "residuals_button")
-    self.residuals_button.setCheckable(True)
-    self.residuals_button.toggled.connect(
-        lambda: toggle_residuals_plot(self))
+    #self.error_button = self.findChild(QPushButton, "error_button")
+    self.error_button.setCheckable(True)
+    self.error_button.toggled.connect(
+        lambda: toggle_error_plot(self))
 
     self.polynomial_degree_spinBox = self.findChild(
         QSpinBox, "polynomial_degree_spinBox")
@@ -95,6 +114,11 @@ def init_connectors(self):
     self.extrapolate_spinBox = self.findChild(
         QSpinBox, "extrapolate_spinBox")
     self.extrapolate_spinBox.valueChanged.connect(
+        lambda: update_interpolation(self))
+
+    self.chunk_number_spinBox = self.findChild(
+        QSpinBox, "chunk_number_spinBox")
+    self.chunk_number_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
 
     ''' Menu Bar'''

@@ -2,6 +2,7 @@ from importlib_metadata import NullFinder
 import numpy as np
 from numpy import fft
 from abc import ABC, abstractmethod
+from copy import copy
 
 from modules.utility import print_debug
 
@@ -68,9 +69,9 @@ class Signal():
 class SignalProcessor():
     def __init__(self, original=Signal()) -> None:
 
-        self.original_signal = original
+        self.original_signal = copy(original)
 
-        self.clipped_signal = original
+        self.clipped_signal = copy(original)
         self.clip_percentage = 100
 
         self.interpolation_type = None
@@ -79,15 +80,15 @@ class SignalProcessor():
 
         self.extrapolation_type = None
 
-        self.interpolated_signal = original
-        self.extrapolated_signal = original
+        self.interpolated_signal = copy(original)
+        self.extrapolated_signal = copy(original)
 
-    def init_interpolation(self, interpolation_type: str = None, interpolation_order: int = 1, chunk_size: int = 0):
-        if interpolation_type == None:
+    def init_interpolation(self, type: str = None, order: int = 1, chunk_size: int = 0):
+        if type == None:
             raise Exception("Interpolation type must be set")
 
-        self.interpolation_type = interpolation_type
-        self.interpolation_order = interpolation_order
+        self.interpolation_type = type
+        self.interpolation_order = order
         self.chunk_size = chunk_size
         self.interpolate()
 
@@ -96,7 +97,6 @@ class SignalProcessor():
         input = self.clipped_signal
 
         if type == "polynomial":
-
             self.interpolated_signal = Signal(signal=np.polyval(np.polyfit(
                 input.time, input.signal, self.interpolation_order), input.time), fsample=input.fsample)
 
@@ -109,7 +109,8 @@ class SignalProcessor():
             raise Exception("Clip percentage cant be 100%")
 
         self.clip_percentage = clip_percentage
-        self.clipped_signal = self.original_signal  # Resets the clipped signal
+        # Resets the clipped signal
+        self.clipped_signal = copy(self.original_signal)
         self.clipped_signal.clip("right", self.clip_percentage)
         # interpolate
         # extrapolate
@@ -141,8 +142,8 @@ class SignalProcessor():
 
 
 def update_graph(self):
-    if self.signal_processor.clipped_signal != None:
-        draw = self.signal_processor.clipped_signal
+    if self.signal_processor.original_signal != None:
+        draw = self.signal_processor.original_signal
         self.curve_plot_ref.setData(draw.time, draw.signal)
 
     if self.signal_processor.isInterpolated():

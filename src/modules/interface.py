@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushB
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
-from modules.curvefit import update_graph
+from modules.curvefit import update_error_graph, update_graph
 from modules.utility import print_debug, print_log
 import pyqtgraph as pg
 
@@ -16,15 +16,8 @@ def about_us(self):
 
 
 def update_interpolation(self):
-    """Creates Interpolation object based on user input"""
 
     print_debug("Updating Interpolation")
-
-    clipping = self.extrapolate_spinBox.value()
-    print_debug("Clipping: " + str(clipping))
-    self.signal_processor.set_clipping(clipping)
-    print_debug("Signal length: " +
-                str(len(self.signal_processor.clipped_signal)))
 
     if self.chunk_button.isChecked():
         order = int(self.polynomial_degree_spinBox.value())
@@ -42,6 +35,26 @@ def update_interpolation(self):
             chunk_size=chunk_size)
 
     update_graph(self)
+
+
+def update_extrapolation(self):
+    self.signal_processor.extrapolate()
+
+    update_graph(self)
+
+
+def update_clipping(self):
+    clipping = self.extrapolate_spinBox.value()
+    print_debug("Clipping: " + str(clipping))
+    self.signal_processor.set_clipping(clipping)
+    print_debug("Signal length: " +
+                str(len(self.signal_processor.clipped_signal)))
+    update_interpolation(self)
+    update_extrapolation(self)
+
+
+def update_error(self):
+    update_error_graph(self)
 
 
 def toggle_error_plot(self):
@@ -82,7 +95,7 @@ def init_plots(self):
     self.curve_plot_interpolated = self.curve_plot.plot(pen=pen)
 
     pen = pg.mkPen(color=(15, 255, 10), style=QtCore.Qt.DotLine, width=2)
-    self.curve_polt_extrapolated = self.curve_plot.plot(pen=pen)
+    self.curve_plot_extrapolated = self.curve_plot.plot(pen=pen)
 
 
 def init_connectors(self):
@@ -114,7 +127,7 @@ def init_connectors(self):
     self.extrapolate_spinBox = self.findChild(
         QSpinBox, "extrapolate_spinBox")
     self.extrapolate_spinBox.valueChanged.connect(
-        lambda: update_interpolation(self))
+        lambda: update_clipping(self))
 
     self.chunk_number_spinBox = self.findChild(
         QSpinBox, "chunk_number_spinBox")

@@ -33,6 +33,10 @@ class Signal():
             print_debug("Signal has 0 length")
             return 0
 
+    def __getitem__(self, index):
+        """Returns the signal at the given index"""
+        return Signal(self.signal[index], self.fsample, self.time[index])
+
     def __subtract__(self, other):
         """Subtracts two signals"""
         if self.fsample == other.fsample:
@@ -103,6 +107,20 @@ class SignalProcessor():
         if type == "spline":
             for chunk in input:
                 """TODO: interpolate chunk by chunk and then add the overlap"""
+
+    def extrapolate(self):
+        """Extrapolates remaining signal, starting from N of clipped to N of original"""
+
+        self.extrapolation_type = "linear predictive coding"
+
+        N_clipped = len(self.clipped_signal)
+        N_original = len(self.original_signal)
+
+        """Processing Here"""
+
+        """Output signal here"""
+        self.extrapolated_signal = copy(
+            self.original_signal[N_clipped:N_original])  # TODO: replace with actual signal
 
     def set_clipping(self, clip_percentage: int = 0):
         if clip_percentage == 100:

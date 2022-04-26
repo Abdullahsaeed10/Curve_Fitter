@@ -123,6 +123,7 @@ class SignalProcessor():
                 """TODO: interpolate chunk by chunk and then add the overlap"""
 
     def extrapolate(self):
+        
         """Extrapolates remaining signal, starting from N of clipped to N of original"""
 
         self.extrapolation_type = "linear predictive coding"
@@ -131,10 +132,17 @@ class SignalProcessor():
         N_original = len(self.original_signal)
 
         """Processing Here"""
+        #fitting the clipped signal
+
+        self.coeff=np.polyfit(self.clipped_signal.time, self.clipped_signal.signal, self.interpolation_order)
+
+        self.extrapolated_values=np.polyval(self.coeff,self.original_signal.time[N_clipped:N_original])
 
         """Output signal here"""
-        self.extrapolated_signal = copy(
-            self.original_signal[N_clipped:N_original])  # TODO: replace with actual signal
+        self.extrapolated_signal=Signal(signal=self.extrapolated_values,time=self.original_signal.time[N_clipped:N_original])
+
+        
+       
 
     def set_clipping(self, clip_percentage: int = 0):
         if clip_percentage == 100:

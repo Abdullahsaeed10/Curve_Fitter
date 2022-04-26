@@ -7,7 +7,7 @@ from modules import curvefit
 import wfdb
 import csv
 
-MAX_SAMPLES = 1000
+MAX_SAMPLES = 100
 
 
 def browse_window(self):

@@ -273,7 +273,7 @@ FakesAssemblies/
 
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat
-node_modules/
+node_mo/
 
 # Visual Studio 6 build log
 *.plg
@@ -289,7 +289,7 @@ node_modules/
 **/*.DesktopClient/GeneratedArtifacts
 **/*.DesktopClient/ModelManifest.xml
 **/*.Server/GeneratedArtifacts
-**/*.Server/ModelManifest.xml
+**/*.Server/modulesdelManifest.xml
 _Pvt_Extensions
 
 # Paket dependency manager

@@ -1,5 +1,11 @@
 import numpy as np
 from copy import copy
+import sympy
+
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
+
+plt.rc('mathtext', fontset='cm')
 
 from modules.utility import print_debug
 
@@ -287,3 +293,25 @@ def update_graph(self):
     if self.signal_processor.isExtrapolated():
         draw = self.signal_processor.extrapolated_signal
         self.curve_plot_extrapolated.setData(draw.time, draw.magnitude)
+
+    latex(self, self.signal_processor.interpolated_signal.coefficients)
+
+
+def create_latex_figure(self):
+    self.fig = plt.figure()
+    self.fig.patch.set_facecolor('None')
+    self.Latex = Canvas(self.fig)
+    self.latex_box.addWidget(self.Latex)
+
+#def convert_to_latex_format(coef):
+#    for i in len(coef):
+#        formula = 
+
+def latex(self, coef, fontsize=12):  #    NEED TO FIND WAY TO PASS EQUATION FROM INTERPOLATED SIGNAL
+    self.fig.clear()
+    polynomial = np.poly1d(coef)
+    print(polynomial)
+    x = sympy.symbols('x')
+    formula = sympy.printing.latex(sympy.Poly(polynomial.coef.round(2),x).as_expr())
+    self.fig.text(0, 0.3, '${}$'.format(formula), fontsize=fontsize, color = 'white')
+    self.fig.canvas.draw()

@@ -33,6 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # initialize interface components
         interface.init_plots(self)
         interface.init_connectors(self)
+        create_latex_figure(self)
 
 
 def main():

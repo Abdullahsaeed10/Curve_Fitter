@@ -115,6 +115,9 @@ QGroupBox::title  {
            <string>Results</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
+           <property name="topMargin">
+            <number>3</number>
+           </property>
            <item row="0" column="0">
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <property name="spacing">

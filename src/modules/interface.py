@@ -73,6 +73,7 @@ def toggle_fit_mode(self, mode):
             self.spline_button.setDown(False)
             self.spline_button.setChecked(False)
             self.spline_options_widget.hide()
+            self.polynomial_equation_spinBox.hide()
 
         self.chunk_button.setDown(True)
         self.chunk_button.setChecked(True)
@@ -82,6 +83,7 @@ def toggle_fit_mode(self, mode):
             self.chunk_button.setDown(False)
             self.chunk_button.setChecked(False)
             self.spline_options_widget.show()
+            self.polynomial_equation_spinBox.show()
 
         self.spline_button.setDown(True)
         self.spline_button.setChecked(True)
@@ -109,6 +111,7 @@ def init_connectors(self):
     self.chunk_button.setChecked(True)
 
     self.spline_options_widget.hide()
+    self.polynomial_equation_spinBox.hide()
     self.chunk_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Chunk'))
 

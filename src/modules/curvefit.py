@@ -302,12 +302,9 @@ def create_latex_figure(self):
     self.fig.patch.set_facecolor('None')
     self.Latex = Canvas(self.fig)
     self.latex_box.addWidget(self.Latex)
+ 
 
-#def convert_to_latex_format(coef):
-#    for i in len(coef):
-#        formula = 
-
-def latex(self, coef, fontsize=12):  #    NEED TO FIND WAY TO PASS EQUATION FROM INTERPOLATED SIGNAL
+def latex(self, coef, fontsize=12):
     self.fig.clear()
     polynomial = np.poly1d(coef)
     print(polynomial)

@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushB
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
-from modules.curvefit import update_error_graph, update_graph
+from modules.curvefit import update_graph
+from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
 import pyqtgraph as pg
 
@@ -25,14 +26,15 @@ def update_interpolation(self):
             type="polynomial", order=order)
 
     elif self.spline_button.isChecked():
-        order = int(self.spline_order_comboBox.currentText())
-        chunk_size = int(self.chunk_number_spinBox.value())
-        # TODO:add spline interpolation
+        order = int(self.polynomial_degree_spinBox.value())
+        chunk_number = int(self.chunk_number_spinBox.value())
+        overlap_percent = int(self.overlap_spinBox.value())
 
         self.signal_processor.init_interpolation(
             type="spline",
             order=order,
-            chunk_size=chunk_size)
+            N_chunks=chunk_number,
+            overlap_percent=overlap_percent)
 
     update_graph(self)
 

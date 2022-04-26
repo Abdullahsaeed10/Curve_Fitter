@@ -389,7 +389,7 @@ QSpinBox::down-arrow {
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="chunk_number_spinBox_3">
+                   <widget class="QSpinBox" name="overlap_spinBox">
                     <property name="styleSheet">
                      <string notr="true">QSpinBox {
 	padding-left: 3;

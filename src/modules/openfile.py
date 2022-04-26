@@ -42,7 +42,7 @@ def open_file(self, path):
         temp_magnitude = np.concatenate(
             self.record.p_signal)
 
-        self.signal = Signal(signal=temp_magnitude, fsample=self.record.fs)
+        self.signal = Signal(magnitude=temp_magnitude, fsample=self.record.fs)
 
     if filetype == "csv" or filetype == "txt" or filetype == "xls":
         with open(path, 'r') as csvFile:    # 'r' its a mode for reading and writing
@@ -52,7 +52,7 @@ def open_file(self, path):
                     float(line[1]))
                 temp_time.append(
                     float(line[0]))
-        self.signal = Signal(signal=temp_magnitude, time=temp_time)
+        self.signal = Signal(magnitude=temp_magnitude, time=temp_time)
 
     print_debug("Record loaded")
 

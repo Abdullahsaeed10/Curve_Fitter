@@ -313,5 +313,5 @@ def latex(self, coef, fontsize=12):  #    NEED TO FIND WAY TO PASS EQUATION FROM
     print(polynomial)
     x = sympy.symbols('x')
     formula = sympy.printing.latex(sympy.Poly(polynomial.coef.round(2),x).as_expr())
-    self.fig.text(0, 0.3, '${}$'.format(formula), fontsize=fontsize, color = 'white')
+    self.fig.text(0, 0.2, '${}$'.format(formula), fontsize=fontsize, color = 'white')
     self.fig.canvas.draw()

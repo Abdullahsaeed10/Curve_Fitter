@@ -79,6 +79,22 @@ background: rgb(85, 255, 255);
       </property>
      </widget>
     </item>
+    <item row="0" column="0">
+     <widget class="Line" name="line_3">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>1</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgba(255, 255, 255, 100);</string>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -109,6 +125,12 @@ QGroupBox::title  {
     subcontrol-position: top left;
     padding: -5px 0px 0px 0px;
     color: rgb(255, 255, 255);
+}
+QScrollBar:horizontal {
+    height: 3px;
+}
+QScrollBar::handle:horizontal {
+	background-color: rgb(255, 255, 255)
 }</string>
           </property>
           <property name="title">
@@ -142,18 +164,49 @@ QGroupBox::title  {
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_16">
                <item>
-                <widget class="QWidget" name="widget" native="true">
+                <widget class="QScrollArea" name="scrollArea">
                  <property name="styleSheet">
                   <string notr="true">background-color: transparent;</string>
                  </property>
-                 <layout class="QVBoxLayout" name="latex_box">
-                  <property name="topMargin">
-                   <number>0</number>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="widgetResizable">
+                  <bool>true</bool>
+                 </property>
+                 <widget class="QWidget" name="scrollAreaWidgetContents">
+                  <property name="geometry">
+                   <rect>
+                    <x>-505</x>
+                    <y>0</y>
+                    <width>1218</width>
+                    <height>45</height>
+                   </rect>
                   </property>
-                  <property name="bottomMargin">
-                   <number>0</number>
-                  </property>
-                 </layout>
+                  <layout class="QGridLayout" name="gridLayout_6">
+                   <item row="0" column="0">
+                    <widget class="QWidget" name="widget" native="true">
+                     <property name="minimumSize">
+                      <size>
+                       <width>1200</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">background-color: transparent;</string>
+                     </property>
+                     <layout class="QVBoxLayout" name="latex_box">
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
                 </widget>
                </item>
                <item>
@@ -1210,22 +1263,6 @@ QComboBox QAbstractItemView
        </layout>
       </item>
      </layout>
-    </item>
-    <item row="0" column="0">
-     <widget class="Line" name="line_3">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>1</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgba(255, 255, 255, 100);</string>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
     </item>
    </layout>
   </widget>

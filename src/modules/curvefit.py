@@ -70,6 +70,20 @@ class Signal():
         self.chunk_count = len(self.chunks)
 
 
+class ChunkedSignal(Signal):
+    """Represents a chunked signal"""
+
+    def __init__(self, signal_in: Signal = Signal(), chunk_size: int = 0) -> None:
+        super().__init__(signal_in.signal, signal_in.fsample, signal_in.time)
+        self.chunk_size = chunk_size
+        self.chunks = self.chunk(self.chunk_size)
+        self.chunk_count = len(self.chunks)
+
+    def __getitem__(self, index):
+        """Returns the signal at the given index"""
+        return
+
+
 class SignalProcessor():
     def __init__(self, original=Signal()) -> None:
 

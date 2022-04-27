@@ -1,3 +1,4 @@
+from modules.utility import print_debug
 import numpy as np
 from copy import copy
 import sympy
@@ -6,8 +7,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 
 plt.rc('mathtext', fontset='cm')
-
-from modules.utility import print_debug
 
 
 class Signal():
@@ -121,15 +120,22 @@ class ChunkedSignal(Signal):
 
         # THIS IS A PLACEHOLDER: ignores overlap
         # clear data
-        self.time = 0
-        self.magnitude = 0
+        self.time = []
+        self.magnitude = []
 
         for index in range(0, len(self.chunk_array)):
+            print_debug("Merging chunk " + str(index))
+            print_debug(self.chunk_array[index])
+            print_debug("Time Data" + str(self.chunk_array[index].time))
             self.time.append(self.get_chunk_without_overlap(index).time)
             self.magnitude.append(
                 self.get_chunk_without_overlap(index).magnitude)
+        # Convert to 1D arrays
+        self.time = np.concatenate(self.time)
+        self.magnitude = np.concatenate(self.magnitude)
 
-    def get_overlap(self, chunk_index):
+    def get_overlap(self, chunk_index, direction="left"):
+        # TODO: should account for first index and last index chunks
         """Returns the overlap of the chunk"""
         overlap_length = self.overlap_length
         return self.chunk_array[chunk_index][-overlap_length:]
@@ -140,7 +146,9 @@ class ChunkedSignal(Signal):
 
     def get_chunk_without_overlap(self, index):
         """Returns the chunk without overlap"""
-        return self.chunk_array[index][:-self.overlap_length]
+        output = copy(self.chunk_array[index][:-self.overlap_length])
+        print_debug(" Chunk without overlap" + str(output))
+        return output
 
     def get_coefficients(self, index=0):
         """Returns the coefficients of the chunk at the given index"""
@@ -180,9 +188,9 @@ class SignalProcessor():
         self.clip_percentage = 100
 
         self.interpolation_type = None
-        self.interpolation_order = None
-        self.max_chunks = None
-        self.overlap_percent = None
+        self.interpolation_order = 0
+        self.max_chunks = 1
+        self.overlap_percent = 0
 
         self.extrapolation_type = None
 
@@ -244,6 +252,7 @@ class SignalProcessor():
                 coef, self.original_signal.time[N_clipped:N_original])
 
         elif self.extrapolation_type == "spline":
+            # coefficients of last chunk
             coef = self.interpolated_signal.chunk_array[-1].coefficients
             self.extrapolated_values = np.polyval(
                 coef, self.original_signal.time[N_clipped:N_original])
@@ -307,8 +316,9 @@ def create_latex_figure(self):
 def latex(self, coef, fontsize=12):
     self.fig.clear()
     polynomial = np.poly1d(coef)
-    print(polynomial)
     x = sympy.symbols('x')
-    formula = sympy.printing.latex(sympy.Poly(polynomial.coef.round(2),x).as_expr())
-    self.fig.text(0, 0.2, '${}$'.format(formula), fontsize=fontsize, color = 'white')
+    formula = sympy.printing.latex(sympy.Poly(
+        polynomial.coef.round(2), x).as_expr())
+    self.fig.text(0, 0.2, '${}$'.format(formula),
+                  fontsize=fontsize, color='white')
     self.fig.canvas.draw()

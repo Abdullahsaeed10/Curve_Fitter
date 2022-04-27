@@ -38,7 +38,8 @@ def select_error_y (self,y_type):
     self.y_type=y_type
     self.y_values=choices_def(self,choice=self.y_type)
     
-
+def x_and_y_axes(axis_x,axis_y):
+    if
 
 def calculate_error(self, loading_counter: int = 0):
     # progress bar
@@ -52,7 +53,12 @@ def calculate_error(self, loading_counter: int = 0):
     
     x=self.x_values
     y=self.y_values
-    
+    new_max=max(x)
+    new_min=min(x)-1
+
+    print(new_max)
+    print(new_min)
+
     print("x_values:")
     print(self.x_values)
     
@@ -74,7 +80,6 @@ def calculate_error(self, loading_counter: int = 0):
         for j in y:
         # intrapolate according to the 2 numbers and add to the matrix
             
-
             if ((self.y_type=="No. Of Chunks" ) and (self.x_type=="Poly. Order") ):
                 self.signal_processor_error.interpolation_order=i
                 self.signal_processor_error.max_chunks=j
@@ -98,8 +103,9 @@ def calculate_error(self, loading_counter: int = 0):
             elif(self.y_type=="% Overlap" and self.x_type=="No. Of Chunks" ):
                 self.signal_processor_error.max_chunks=i
                 self.signal_processor_error.overlap_percent=j
+                self.signal_processor_error.interpolation_order=self.signal_processor.interpolation_order
             else:
-                print("seriously 3adat kol dah!!")
+                QMessageBox.warning( self, 'warning ', 'You have to choose 2 diffrent axes')
              
             print("x=")
             print(i)
@@ -118,9 +124,9 @@ def calculate_error(self, loading_counter: int = 0):
     # percentage_error between interpolated signal and original signal
     self.percentage_error=[]
     
-    for i in range(0,9):
+    for i in range(new_min,new_max):
         self.percentage_error_temp=[]
-        for j in range(0,9):
+        for j in range(new_min,new_max):
             self.percentage_error_temp.append((abs(self.signal_processor_error.original_signal.magnitude-self.interpolated_signal_mag[i][j]) / self.signal_processor_error.original_signal.magnitude )*100)
         self.percentage_error.append(self.percentage_error_temp)
         print("there")

@@ -704,6 +704,9 @@ QSpinBox::down-arrow {
     height: 6px;
 }</string>
                   </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
                  </widget>
                 </item>
                </layout>
@@ -1020,7 +1023,7 @@ QSpinBox::down-arrow {
                    <number>100</number>
                   </property>
                   <property name="singleStep">
-                   <number>10</number>
+                   <number>5</number>
                   </property>
                  </widget>
                 </item>

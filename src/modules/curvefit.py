@@ -311,8 +311,15 @@ def update_graph(self):
         draw = self.signal_processor.extrapolated_signal
         self.curve_plot_extrapolated.setData(draw.time, draw.magnitude)
 
-    latex(self, self.signal_processor.interpolated_signal.coefficients)
+    update_latex(self)
 
+def update_latex(self):
+    if self.signal_processor.interpolation_type == "spline":
+        latex(self, self.signal_processor.interpolated_signal.get_coefficients(self.polynomial_equation_spinBox.value()))
+        self.polynomial_equation_spinBox.setMaximum(self.chunk_number_spinBox.value() - 1)
+
+    else:
+        latex(self, self.signal_processor.interpolated_signal.coefficients)
 
 def create_latex_figure(self):
     self.fig = plt.figure()
@@ -327,6 +334,6 @@ def latex(self, coef, fontsize=12):
     x = sympy.symbols('x')
     formula = sympy.printing.latex(sympy.Poly(
         polynomial.coef.round(2), x).as_expr())
-    self.fig.text(0, 0.2, '${}$'.format(formula),
+    self.fig.text(0, 0.1, '${}$'.format(formula),
                   fontsize=fontsize, color='white')
     self.fig.canvas.draw()

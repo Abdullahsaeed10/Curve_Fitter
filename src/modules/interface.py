@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushB
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
-from modules.curvefit import update_graph
+from modules.curvefit import update_graph, update_latex
 from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
 import pyqtgraph as pg
@@ -159,6 +159,9 @@ def init_connectors(self):
 
     self.x_comboBox.currentIndexChanged.connect(
         lambda: combobox_selections_visibility(self))
+
+    self.polynomial_equation_spinBox.valueChanged.connect(
+        lambda: update_latex(self))
 
     view = self.y_comboBox.view()
     view.setRowHidden(0, True)

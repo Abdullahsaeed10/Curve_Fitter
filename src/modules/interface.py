@@ -8,6 +8,7 @@ from modules import openfile
 from modules.curvefit import update_graph
 from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
+from modules import errormap
 import pyqtgraph as pg
 
 
@@ -116,7 +117,7 @@ def init_connectors(self):
     self.spline_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Spline'))
 
-    #self.error_button = self.findChild(QPushButton, "error_button")
+    
     self.error_button.setCheckable(True)
     self.error_button.toggled.connect(
         lambda: toggle_error_plot(self))
@@ -135,6 +136,22 @@ def init_connectors(self):
         QSpinBox, "chunk_number_spinBox")
     self.chunk_number_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
+
+    # x,y combobox
+    # comboBox x
+    # comboBox_3 y
+    self.comboBox = self.findChild(QComboBox, "comboBox")
+    self.comboBox.currentIndexChanged.connect(
+        lambda: errormap.select_error_x(self, self.comboBox.currentText()))
+   
+    self.comboBox_3 = self.findChild(QComboBox, "comboBox_3")
+    self.comboBox_3.currentIndexChanged.connect(
+        lambda: errormap.select_error_y(self, self.comboBox_3.currentText()))
+
+    self.error_map_apply_button = self.findChild(QPushButton, "error_map_apply_button")
+    self.error_map_apply_button.clicked.connect(
+         lambda: errormap.calculate_error(self))
+    
 
     ''' Menu Bar'''
     self.actionOpen = self.findChild(QAction, "actionOpen")

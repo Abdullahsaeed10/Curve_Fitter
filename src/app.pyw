@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QTabWidget
 from modules import interface, errormap
 from modules import resources
 from modules.curvefit import *
-
+from modules import errormap
 import numpy as np
 from modules.utility import print_debug
 import sys

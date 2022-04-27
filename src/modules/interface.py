@@ -171,8 +171,11 @@ def init_connectors(self):
     self.x_comboBox.currentIndexChanged.connect(
         lambda: combobox_selections_visibility(self))
     
+    self.x_comboBox.currentIndexChanged.connect(
+        lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))
+
     self.y_comboBox.currentIndexChanged.connect(
-        lambda: errormap.select_error_y(self, self.comboBox_3.currentText()))
+        lambda: errormap.select_error_y(self, self.y_comboBox.currentText()))
     
     self.polynomial_equation_spinBox.valueChanged.connect(
         lambda: update_latex(self))

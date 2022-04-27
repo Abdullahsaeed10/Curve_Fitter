@@ -5,11 +5,12 @@ from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushB
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
-from modules.curvefit import update_graph
+from modules.curvefit import update_graph, update_latex
 from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
 from modules import errormap
 import pyqtgraph as pg
+import time 
 
 
 def about_us(self):
@@ -74,6 +75,7 @@ def toggle_fit_mode(self, mode):
             self.spline_button.setDown(False)
             self.spline_button.setChecked(False)
             self.spline_options_widget.hide()
+            self.polynomial_equation_spinBox.hide()
 
         self.chunk_button.setDown(True)
         self.chunk_button.setChecked(True)
@@ -83,9 +85,19 @@ def toggle_fit_mode(self, mode):
             self.chunk_button.setDown(False)
             self.chunk_button.setChecked(False)
             self.spline_options_widget.show()
+            self.polynomial_equation_spinBox.show()
 
         self.spline_button.setDown(True)
         self.spline_button.setChecked(True)
+
+######################## TODO: To be checked ########################
+
+def progressBar_value(self):
+
+    for i in range(100):
+            time.sleep(0.00001)
+            self.progressBar.setValue(i+1)
+    return self.progressBar.value()
 
 
 def init_plots(self):
@@ -101,6 +113,14 @@ def init_plots(self):
     self.curve_plot_extrapolated = self.curve_plot.plot(pen=pen)
 
 
+def combobox_selections_visibility(self):
+        view = self.y_comboBox.view()
+        view.setRowHidden(self.hidden_row, False)
+        view.setRowHidden(self.x_comboBox.currentIndex(), True)
+        self.hidden_row = self.x_comboBox.currentIndex()
+
+        self.y_comboBox.setCurrentIndex((self.hidden_row + 1) % 3)
+
 def init_connectors(self):
     # '''Initializes all event connectors and triggers'''
 
@@ -110,6 +130,7 @@ def init_connectors(self):
     self.chunk_button.setChecked(True)
 
     self.spline_options_widget.hide()
+    self.polynomial_equation_spinBox.hide()
     self.chunk_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Chunk'))
 
@@ -136,22 +157,31 @@ def init_connectors(self):
         QSpinBox, "chunk_number_spinBox")
     self.chunk_number_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
-
-    # x,y combobox
-    # comboBox x
-    # comboBox_3 y
-    self.comboBox = self.findChild(QComboBox, "comboBox")
-    self.comboBox.currentIndexChanged.connect(
-        lambda: errormap.select_error_x(self, self.comboBox.currentText()))
-   
-    self.comboBox_3 = self.findChild(QComboBox, "comboBox_3")
-    self.comboBox_3.currentIndexChanged.connect(
-        lambda: errormap.select_error_y(self, self.comboBox_3.currentText()))
-
+    
+    
     self.error_map_apply_button = self.findChild(QPushButton, "error_map_apply_button")
     self.error_map_apply_button.clicked.connect(
          lambda: errormap.calculate_error(self))
     
+    self.x_comboBox.currentIndexChanged.connect(
+        lambda: errormap.select_error_y(self, self.x_comboBox.currentText()))
+    self.x_comboBox.currentIndexChanged.connect(
+        lambda: combobox_selections_visibility(self))
+    
+    self.y_comboBox.currentIndexChanged.connect(
+        lambda: errormap.select_error_y(self, self.comboBox_3.currentText()))
+    
+    self.polynomial_equation_spinBox.valueChanged.connect(
+        lambda: update_latex(self))
+    
+    view = self.y_comboBox.view()
+    view.setRowHidden(0, True)
+
+######################## TODO: add support for progress bar ########################
+    # self.progressBar = self.findChild(QProgressBar, "progressBar")
+    # self.triggered.connect(
+    #     lambda: progressBar_value(self))
+
 
     ''' Menu Bar'''
     self.actionOpen = self.findChild(QAction, "actionOpen")

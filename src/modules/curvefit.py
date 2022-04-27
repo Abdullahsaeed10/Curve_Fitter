@@ -1,7 +1,12 @@
+from modules.utility import print_debug
 import numpy as np
 from copy import copy
+import sympy
 
-from modules.utility import print_debug
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
+
+plt.rc('mathtext', fontset='cm')
 
 
 class Signal():
@@ -11,16 +16,22 @@ class Signal():
 
         self.magnitude = magnitude
         self.fsample = fsample
+        self.time = time
 
         if self.fsample == 0:
             self.time = time
             if len(time) != 0:
                 self.fsample = len(self.magnitude)/time[-1]
-        else:
-            self.time = np.arange(0, len(magnitude)) / fsample
 
-        if (self.magnitude != [] and self.time == []) or (self.magnitude == [] and self.time != []):
-            raise Exception("Signal must have a time or fsampling vector")
+        if len(time) == 0:
+            if len(magnitude) != 0:
+                print_debug("Time axis auto generated")
+                self.time = np.arange(0, len(magnitude))/fsample
+            else:
+                self.time = []
+
+        # if (self.magnitude != [] and self.time == []) or (self.magnitude == [] and self.time != []):
+        #     raise Exception("Signal must have a time or fsampling vector")
 
         self.coefficients = coef
 
@@ -34,7 +45,7 @@ class Signal():
 
     def __getitem__(self, index):
         """Returns the signal at the given index"""
-        return Signal(self.magnitude[index], self.fsample, self.time[index])
+        return copy(Signal(self.magnitude[index], self.fsample, self.time[index]))
 
     def __subtract__(self, other):
         """Subtracts two signals"""
@@ -52,7 +63,7 @@ class Signal():
     def __append__(self, other):
         """Appends two signals"""
         if self.fsample == other.fsample:
-            return Signal(self.magnitude + other.magnitude, self.fsample, self.time + other.time)
+            return copy(Signal(self.magnitude + other.magnitude, self.fsample, self.time + other.time))
         else:
             raise Exception("Signals must have the same sampling frequency")
 
@@ -98,7 +109,7 @@ class ChunkedSignal(Signal):
         self.overlap_percent = overlap_percent
         if len(signal.magnitude) > 0:
             self.update_chunk_size(max_chunks)
-            self.generate_chunks()
+            # self.generate_chunks()
 
     def update_chunk_size(self, max_chunks):
         self.chunk_length = int(len(self.magnitude)/max_chunks)
@@ -115,15 +126,23 @@ class ChunkedSignal(Signal):
 
         # THIS IS A PLACEHOLDER: ignores overlap
         # clear data
-        self.time = 0
-        self.magnitude = 0
+        self.time = []
+        self.magnitude = []
 
         for index in range(0, len(self.chunk_array)):
+            print_debug("Merging chunk " + str(index))
+            print_debug(self.chunk_array[index])
+            print_debug("Time Data" + str(self.chunk_array[index].time))
             self.time.append(self.get_chunk_without_overlap(index).time)
             self.magnitude.append(
                 self.get_chunk_without_overlap(index).magnitude)
 
-    def get_overlap(self, chunk_index):
+        # Convert to 1D arrays
+        self.time = np.concatenate(self.time)
+        self.magnitude = np.concatenate(self.magnitude)
+
+    def get_overlap(self, chunk_index, direction="left"):
+        # TODO: should account for first index and last index chunks
         """Returns the overlap of the chunk"""
         overlap_length = self.overlap_length
         return self.chunk_array[chunk_index][-overlap_length:]
@@ -134,7 +153,9 @@ class ChunkedSignal(Signal):
 
     def get_chunk_without_overlap(self, index):
         """Returns the chunk without overlap"""
-        return self.chunk_array[index][:-self.overlap_length]
+        output = copy(self.chunk_array[index][:-self.overlap_length])
+        print_debug(" Chunk without overlap" + str(output))
+        return output
 
     def get_coefficients(self, index=0):
         """Returns the coefficients of the chunk at the given index"""
@@ -157,9 +178,10 @@ class ChunkedSignal(Signal):
         overlap_length = self.overlap_length
 
         for index in range(0, len(self.magnitude), chunk_length):
-            chunk_array.append(Signal(self.magnitude[index:index+chunk_length],
+            chunk_array.append(Signal(self.magnitude[index:index+chunk_length + overlap_length],
                                       self.fsample,
-                                      self.time[index:index+chunk_length],
+                                      self.time[index:index +
+                                                chunk_length + overlap_length],
                                       self.coefficients))
 
         self.chunk_array = chunk_array
@@ -174,9 +196,9 @@ class SignalProcessor():
         self.clip_percentage = 100
 
         self.interpolation_type = None
-        self.interpolation_order = None
-        self.max_chunks = None
-        self.overlap_percent = None
+        self.interpolation_order = 0
+        self.max_chunks = 1
+        self.overlap_percent = 0
 
         self.extrapolation_type = None
 
@@ -219,7 +241,7 @@ class SignalProcessor():
                                   input.magnitude,
                                   self.interpolation_order)
                 self.interpolated_signal.set_chunk(chunk_index, Signal(
-                    magnitude=np.polyval(coef, input.time), fsample=input.fsample, coef=coef))
+                    magnitude=np.polyval(coef, input.time), fsample=input.fsample, coef=coef, time=input.time))
         else:
             raise Exception("Interpolation type must be polynomial or spline")
 
@@ -238,6 +260,7 @@ class SignalProcessor():
                 coef, self.original_signal.time[N_clipped:N_original])
 
         elif self.extrapolation_type == "spline":
+            # coefficients of last chunk
             coef = self.interpolated_signal.chunk_array[-1].coefficients
             self.extrapolated_values = np.polyval(
                 coef, self.original_signal.time[N_clipped:N_original])
@@ -287,3 +310,30 @@ def update_graph(self):
     if self.signal_processor.isExtrapolated():
         draw = self.signal_processor.extrapolated_signal
         self.curve_plot_extrapolated.setData(draw.time, draw.magnitude)
+
+    update_latex(self)
+
+def update_latex(self):
+    if self.signal_processor.interpolation_type == "spline":
+        latex(self, self.signal_processor.interpolated_signal.get_coefficients(self.polynomial_equation_spinBox.value()))
+        self.polynomial_equation_spinBox.setMaximum(self.chunk_number_spinBox.value() - 1)
+
+    else:
+        latex(self, self.signal_processor.interpolated_signal.coefficients)
+
+def create_latex_figure(self):
+    self.fig = plt.figure()
+    self.fig.patch.set_facecolor('None')
+    self.Latex = Canvas(self.fig)
+    self.latex_box.addWidget(self.Latex)
+
+
+def latex(self, coef, fontsize=12):
+    self.fig.clear()
+    polynomial = np.poly1d(coef)
+    x = sympy.symbols('x')
+    formula = sympy.printing.latex(sympy.Poly(
+        polynomial.coef.round(2), x).as_expr())
+    self.fig.text(0, 0.1, '${}$'.format(formula),
+                  fontsize=fontsize, color='white')
+    self.fig.canvas.draw()

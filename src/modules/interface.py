@@ -9,6 +9,7 @@ from modules.curvefit import update_graph
 from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
 import pyqtgraph as pg
+import time 
 
 
 def about_us(self):
@@ -88,6 +89,15 @@ def toggle_fit_mode(self, mode):
         self.spline_button.setDown(True)
         self.spline_button.setChecked(True)
 
+######################## TODO: To be checked ########################
+
+def progressBar_value(self):
+
+    for i in range(100):
+            time.sleep(0.00001)
+            self.progressBar.setValue(i+1)
+    return self.progressBar.value()
+
 
 def init_plots(self):
     # initializing plot widgets
@@ -138,6 +148,11 @@ def init_connectors(self):
         QSpinBox, "chunk_number_spinBox")
     self.chunk_number_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
+
+######################## TODO: add support for progress bar ########################
+    # self.progressBar = self.findChild(QProgressBar, "progressBar")
+    # self.triggered.connect(
+    #     lambda: progressBar_value(self))
 
     ''' Menu Bar'''
     self.actionOpen = self.findChild(QAction, "actionOpen")

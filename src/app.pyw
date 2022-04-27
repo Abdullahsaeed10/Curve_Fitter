@@ -2,7 +2,7 @@
 
 from PyQt5 import QtGui, QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QTabWidget
-from modules import interface
+from modules import interface, errormap
 from modules import resources
 from modules.curvefit import *
 
@@ -35,6 +35,7 @@ class MainWindow(QtWidgets.QMainWindow):
         interface.init_plots(self)
         interface.init_connectors(self)
         create_latex_figure(self)
+        errormap.create_error_map_figure(self)
 
 
 def main():

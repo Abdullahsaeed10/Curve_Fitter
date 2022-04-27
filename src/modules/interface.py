@@ -8,6 +8,7 @@ from modules import openfile
 from modules.curvefit import update_graph, update_latex
 from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
+from modules import errormap
 import pyqtgraph as pg
 import time 
 
@@ -137,7 +138,7 @@ def init_connectors(self):
     self.spline_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Spline'))
 
-    #self.error_button = self.findChild(QPushButton, "error_button")
+    
     self.error_button.setCheckable(True)
     self.error_button.toggled.connect(
         lambda: toggle_error_plot(self))
@@ -156,13 +157,23 @@ def init_connectors(self):
         QSpinBox, "chunk_number_spinBox")
     self.chunk_number_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
-
+    
+    
+    self.error_map_apply_button = self.findChild(QPushButton, "error_map_apply_button")
+    self.error_map_apply_button.clicked.connect(
+         lambda: errormap.calculate_error(self))
+    
+    self.x_comboBox.currentIndexChanged.connect(
+        lambda: errormap.select_error_y(self, self.x_comboBox.currentText()))
     self.x_comboBox.currentIndexChanged.connect(
         lambda: combobox_selections_visibility(self))
-
+    
+    self.y_comboBox.currentIndexChanged.connect(
+        lambda: errormap.select_error_y(self, self.comboBox_3.currentText()))
+    
     self.polynomial_equation_spinBox.valueChanged.connect(
         lambda: update_latex(self))
-
+    
     view = self.y_comboBox.view()
     view.setRowHidden(0, True)
 
@@ -170,6 +181,7 @@ def init_connectors(self):
     # self.progressBar = self.findChild(QProgressBar, "progressBar")
     # self.triggered.connect(
     #     lambda: progressBar_value(self))
+
 
     ''' Menu Bar'''
     self.actionOpen = self.findChild(QAction, "actionOpen")

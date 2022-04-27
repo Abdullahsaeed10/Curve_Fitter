@@ -138,6 +138,7 @@ def calculate_error(self, loading_counter: int = 0):
         print("there")
     print("percentage_error:")
     print(self.percentage_error)
+    plot_error_map(self, self.percentage_error)
  
 
     #normlizing the percentage between 0 and 1
@@ -162,16 +163,16 @@ def create_error_map_figure(self):
     self.axes = self.figure.add_subplot()
     self.ErrorMap = Canvas(self.figure)
     self.error_plot_box.addWidget(self.ErrorMap)
-    plot_error_map(self) # CALL WHEN ERROR_BUTTON IS CLICKED INSTEAD
+    #plot_error_map(self) # CALL WHEN ERROR_BUTTON IS CLICKED INSTEAD
 
 
 def plot_error_map(self, data = []):
 
     self.axes.clear()
      ############### RANDOM DATA TO TEST HEAT MAP #######################
-    data = np.random.randint(low = 1,
-                         high = 100,
-                         size = (10, 10))
+    #data = np.random.randint(low = 1,
+                         #high = 100,
+                         #size = (10, 10))
   #######################################################################
 
 # plotting the heatmap

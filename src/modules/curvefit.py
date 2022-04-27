@@ -16,16 +16,22 @@ class Signal():
 
         self.magnitude = magnitude
         self.fsample = fsample
+        self.time = time
 
         if self.fsample == 0:
             self.time = time
             if len(time) != 0:
                 self.fsample = len(self.magnitude)/time[-1]
-        else:
-            self.time = np.arange(0, len(magnitude)) / fsample
 
-        if (self.magnitude != [] and self.time == []) or (self.magnitude == [] and self.time != []):
-            raise Exception("Signal must have a time or fsampling vector")
+        if len(time) == 0:
+            if len(magnitude) != 0:
+                print_debug("Time axis auto generated")
+                self.time = np.arange(0, len(magnitude))/fsample
+            else:
+                self.time = []
+
+        # if (self.magnitude != [] and self.time == []) or (self.magnitude == [] and self.time != []):
+        #     raise Exception("Signal must have a time or fsampling vector")
 
         self.coefficients = coef
 
@@ -39,7 +45,7 @@ class Signal():
 
     def __getitem__(self, index):
         """Returns the signal at the given index"""
-        return Signal(self.magnitude[index], self.fsample, self.time[index])
+        return copy(Signal(self.magnitude[index], self.fsample, self.time[index]))
 
     def __subtract__(self, other):
         """Subtracts two signals"""
@@ -57,7 +63,7 @@ class Signal():
     def __append__(self, other):
         """Appends two signals"""
         if self.fsample == other.fsample:
-            return Signal(self.magnitude + other.magnitude, self.fsample, self.time + other.time)
+            return copy(Signal(self.magnitude + other.magnitude, self.fsample, self.time + other.time))
         else:
             raise Exception("Signals must have the same sampling frequency")
 
@@ -103,7 +109,7 @@ class ChunkedSignal(Signal):
         self.overlap_percent = overlap_percent
         if len(signal.magnitude) > 0:
             self.update_chunk_size(max_chunks)
-            self.generate_chunks()
+            # self.generate_chunks()
 
     def update_chunk_size(self, max_chunks):
         self.chunk_length = int(len(self.magnitude)/max_chunks)
@@ -130,6 +136,7 @@ class ChunkedSignal(Signal):
             self.time.append(self.get_chunk_without_overlap(index).time)
             self.magnitude.append(
                 self.get_chunk_without_overlap(index).magnitude)
+
         # Convert to 1D arrays
         self.time = np.concatenate(self.time)
         self.magnitude = np.concatenate(self.magnitude)
@@ -171,9 +178,10 @@ class ChunkedSignal(Signal):
         overlap_length = self.overlap_length
 
         for index in range(0, len(self.magnitude), chunk_length):
-            chunk_array.append(Signal(self.magnitude[index:index+chunk_length],
+            chunk_array.append(Signal(self.magnitude[index:index+chunk_length + overlap_length],
                                       self.fsample,
-                                      self.time[index:index+chunk_length],
+                                      self.time[index:index +
+                                                chunk_length + overlap_length],
                                       self.coefficients))
 
         self.chunk_array = chunk_array
@@ -233,7 +241,7 @@ class SignalProcessor():
                                   input.magnitude,
                                   self.interpolation_order)
                 self.interpolated_signal.set_chunk(chunk_index, Signal(
-                    magnitude=np.polyval(coef, input.time), fsample=input.fsample, coef=coef))
+                    magnitude=np.polyval(coef, input.time), fsample=input.fsample, coef=coef, time=input.time))
         else:
             raise Exception("Interpolation type must be polynomial or spline")
 
@@ -311,7 +319,7 @@ def create_latex_figure(self):
     self.fig.patch.set_facecolor('None')
     self.Latex = Canvas(self.fig)
     self.latex_box.addWidget(self.Latex)
- 
+
 
 def latex(self, coef, fontsize=12):
     self.fig.clear()

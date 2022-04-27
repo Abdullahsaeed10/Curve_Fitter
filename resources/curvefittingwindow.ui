@@ -23,9 +23,15 @@ background-color: rgb(13, 17, 23);</string>
      <layout class="QHBoxLayout" name="horizontalLayout_14">
       <item>
        <widget class="QProgressBar" name="progressBar">
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>200</width>
+          <width>500</width>
           <height>10</height>
          </size>
         </property>
@@ -45,6 +51,45 @@ background: rgb(85, 255, 255);
         </property>
         <property name="textVisible">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cancel_button">
+        <property name="minimumSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+    border-radius: 8px;
+    border-style: outset;
+    background: rgb(12, 17, 24);
+    }
+
+QPushButton:hover {
+    background: rgba(170, 0, 0, 100)
+    }
+
+QPushButton:pressed {
+    border-style: inset;
+    background: rgb(170, 0, 0)
+    }</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>icons/cancel.png</normaloff>icons/cancel.png</iconset>
         </property>
        </widget>
       </item>

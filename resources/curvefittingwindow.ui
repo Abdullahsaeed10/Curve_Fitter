@@ -21,6 +21,9 @@ background-color: rgb(13, 17, 23);</string>
    <layout class="QGridLayout" name="gridLayout_5">
     <item row="2" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_14">
+      <property name="leftMargin">
+       <number>5</number>
+      </property>
       <item>
        <widget class="QProgressBar" name="progressBar">
         <property name="minimumSize">

@@ -42,6 +42,7 @@ def update_interpolation(self):
 
 
 def update_extrapolation(self):
+
     self.signal_processor.extrapolate()
 
     update_graph(self)
@@ -58,6 +59,7 @@ def update_clipping(self):
 
 
 def update_error(self):
+    errormap.plot_error_map(self)
     update_error_graph(self)
 
 
@@ -161,15 +163,16 @@ def init_connectors(self):
     
     self.error_map_apply_button = self.findChild(QPushButton, "error_map_apply_button")
     self.error_map_apply_button.clicked.connect(
-         lambda: errormap.calculate_error(self))
+         lambda: update_error(self))
     
     self.x_comboBox.currentIndexChanged.connect(
-        lambda: errormap.select_error_y(self, self.x_comboBox.currentText()))
+        lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))
+
     self.x_comboBox.currentIndexChanged.connect(
         lambda: combobox_selections_visibility(self))
     
     self.y_comboBox.currentIndexChanged.connect(
-        lambda: errormap.select_error_y(self, self.comboBox_3.currentText()))
+        lambda: errormap.select_error_y(self, self.y_comboBox.currentText()))
     
     self.polynomial_equation_spinBox.valueChanged.connect(
         lambda: update_latex(self))

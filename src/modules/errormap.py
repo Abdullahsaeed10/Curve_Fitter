@@ -14,13 +14,14 @@ plt.rcParams["figure.autolayout"] = True
 import numpy as np
 from copy import copy
 
-from modules.utility import print_debug
+from mo.utility import print_debug
 
 
 def choices_def(self,choice):
     #max chunks is 99
     #max order is 9
     #max % is 25
+
     chunks=[]
     orders=[]
     overlap=[]
@@ -40,15 +41,18 @@ def choices_def(self,choice):
         print("DIDNOT CHOOSE ")
 
 
-def select_error_x (self,x_type):
+def select_error_x (self,x_type="No. Of Chunks"):
     self.x_type=x_type
-    self.x_values=choices_def(self,choice=self.x_type)
+    
+    
 
    
     
-def select_error_y (self,y_type):
+def select_error_y (self,y_type="Poly. Order"):
     self.y_type=y_type
     self.y_values=choices_def(self,choice=self.y_type)
+    
+
     
 
 
@@ -59,12 +63,20 @@ def calculate_error(self, loading_counter: int = 0):
     # for loop to get interpolated 
     # put in array
     # compare original and interpolated
-
-    self.interpolated_signal_mag=[]
     
+    self.interpolated_signal_mag=[]
+  
+    self.x_values=choices_def(self,choice=self.x_type)
+
+    self.y_values=choices_def(self,choice=self.y_type)
+
     x=self.x_values
     y=self.y_values
     
+    min_val=min(x)-1
+    max_val=max(x)
+    print(min_val)
+    print(max_val)
     print("x_values:")
     print(self.x_values)
     
@@ -130,22 +142,31 @@ def calculate_error(self, loading_counter: int = 0):
     # percentage_error between interpolated signal and original signal
     self.percentage_error=[]
     
-    for i in range(0,9):
+    for i in range(min_val,max_val):
         self.percentage_error_temp=[]
-        for j in range(0,9):
-            self.percentage_error_temp.append((abs(self.signal_processor_error.original_signal.magnitude-self.interpolated_signal_mag[i][j]) / self.signal_processor_error.original_signal.magnitude )*100)
+        for j in range(min_val,max_val):
+            clipped_signal_avg=np.average(self.signal_processor_error.clipped_signal.magnitude)
+            interpolated_signal_avg=np.average(self.interpolated_signal_mag[i][j])
+            self.percentage_error_temp.append((np.absolute(interpolated_signal_avg-clipped_signal_avg / clipped_signal_avg )))
         self.percentage_error.append(self.percentage_error_temp)
         print("there")
     print("percentage_error:")
     print(self.percentage_error)
- 
+    
 
-    #normlizing the percentage between 0 and 1
-   # for error in percentage_error:
-    #    self.normalized_percentage = (error - min(percentage_error)) / (max(percentage_error) - min(percentage_error))
-     #   self.normalized_percentage=np.append(self.normalized_percentage) # this is the one that will be presented in the graph
-    #print("normalized_percentage")
-    #print(self.normalized_percentage)
+    self.normalized_error=[]
+    
+    for i in range(min_val,max_val):
+        self.normalized_error_temp=[]
+        for j in range(min_val,max_val):
+            value=(self.percentage_error[i][j] - np.amin(self.percentage_error)) / (np.amax(self.percentage_error) - np.amin(self.percentage_error))
+            self.normalized_error_temp.append(value)
+        self.normalized_error.append(self.normalized_error_temp)
+        print("NORM")
+    print("NORMALIZED:")
+    print(self.normalized_error)
+
+   
     # multithreading
     # https://stackoverflow.com/questions/2846653/how-can-i-use-threading-in-python
     pass
@@ -162,20 +183,19 @@ def create_error_map_figure(self):
     self.axes = self.figure.add_subplot()
     self.ErrorMap = Canvas(self.figure)
     self.error_plot_box.addWidget(self.ErrorMap)
-    plot_error_map(self) # CALL WHEN ERROR_BUTTON IS CLICKED INSTEAD
+    #plot_error_map(self) # CALL WHEN ERROR_BUTTON IS CLICKED INSTEAD
 
 
 def plot_error_map(self, data = []):
-
+    calculate_error(self)
     self.axes.clear()
-     ############### RANDOM DATA TO TEST HEAT MAP #######################
-    data = np.random.randint(low = 1,
-                         high = 100,
-                         size = (10, 10))
-  #######################################################################
+     
+    data = self.normalized_error
+  
 
 # plotting the heatmap
     erorr_map = sn.heatmap(data = data)
+    
   
 # displaying the plotted heatmap
     #plt.show()

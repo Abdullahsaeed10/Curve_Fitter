@@ -307,6 +307,10 @@ def update_graph(self):
         draw = self.signal_processor.interpolated_signal
         self.curve_plot_interpolated.setData(draw.time, draw.magnitude)
 
+        if self.signal_processor.interpolation_type == "spline":
+            draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value()]
+            self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)
+
     if self.signal_processor.isExtrapolated():
         draw = self.signal_processor.extrapolated_signal
         self.curve_plot_extrapolated.setData(draw.time, draw.magnitude)
@@ -317,6 +321,9 @@ def update_latex(self):
     if self.signal_processor.interpolation_type == "spline":
         latex(self, self.signal_processor.interpolated_signal.get_coefficients(self.polynomial_equation_spinBox.value()))
         self.polynomial_equation_spinBox.setMaximum(self.chunk_number_spinBox.value() - 1)
+        
+        draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value()]
+        self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)
 
     else:
         latex(self, self.signal_processor.interpolated_signal.coefficients)

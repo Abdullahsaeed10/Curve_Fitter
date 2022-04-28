@@ -227,7 +227,7 @@ QScrollBar::handle:horizontal {
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>1218</width>
+                    <width>1518</width>
                     <height>50</height>
                    </rect>
                   </property>
@@ -236,7 +236,7 @@ QScrollBar::handle:horizontal {
                     <widget class="QWidget" name="widget" native="true">
                      <property name="minimumSize">
                       <size>
-                       <width>1200</width>
+                       <width>1500</width>
                        <height>0</height>
                       </size>
                      </property>

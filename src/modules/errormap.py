@@ -182,7 +182,7 @@ def calculate_error(self, loading_counter: int = 0):
         self.interpolated_signal_mag.append(self.interpolated_signal_temp)  
            
     percentage_error_function(self) 
-    
+
     normalization(self)
  
     plot_error_map(self,self.normalized_error)
@@ -210,7 +210,6 @@ def plot_error_map(self, data = []):
     self.axes.clear()
     plt.clf()
    
-  
 
 # plotting the heatmap
     erorr_map = sn.heatmap(data = data)

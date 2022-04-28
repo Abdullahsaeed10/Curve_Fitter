@@ -114,6 +114,9 @@ def init_plots(self):
     pen = pg.mkPen(color=(15, 255, 10), style=QtCore.Qt.DotLine, width=2)
     self.curve_plot_extrapolated = self.curve_plot.plot(pen=pen)
 
+    pen = pg.mkPen(color=(0,255,4), width=2)
+    self.curve_plot_selected_chunk = self.curve_plot.plot(pen=pen)
+
 
 def combobox_selections_visibility(self):
         view = self.y_comboBox.view()
@@ -171,6 +174,9 @@ def init_connectors(self):
     self.x_comboBox.currentIndexChanged.connect(
         lambda: combobox_selections_visibility(self))
     
+    self.x_comboBox.currentIndexChanged.connect(
+        lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))
+
     self.y_comboBox.currentIndexChanged.connect(
         lambda: errormap.select_error_y(self, self.y_comboBox.currentText()))
     

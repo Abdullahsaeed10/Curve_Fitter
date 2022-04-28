@@ -1,52 +1,62 @@
-# OLD CODE... REMOVE THIS COMMENT WHEN DONE MODIFYING
-# TODO: should import wfdb and csv
-
 from PyQt5.QtWidgets import QFileDialog
-import matplotlib.pyplot as plt
 import numpy as np
 
-from modules import spectrogram
 from modules.utility import print_debug
-from scipy.io import wavfile
+from modules.curvefit import *
+from modules import curvefit
+import wfdb
+import csv
 
+MAX_SAMPLES = 100
 
 
 def browse_window(self):
+    """Open file dialog to select a file"""
     self.graph_empty = False
     self.filename = QFileDialog.getOpenFileName(
-        None, 'open the signal file', './', filter="Raw Data(*.mp3 *.wav)")
+        None, 'open the signal file', './', filter="Raw Data(*.hea *.dat *.csv *.txt *.xls)")
     path = self.filename[0]
     print_debug("Selected path: " + path)
     open_file(self, path)
-    # play the sound
-
-# shows the sound waves
 
 
 def open_file(self, path):
+    """Open the file and read the data"""
 
-    # # reading the audio file
-    # raw = wave.open(path)
+    temp_time = []
+    temp_magnitude = []
+    temp_fsample = 0
 
-    # # reads all the frames
-    # # -1 indicates all or max frames
-    # signal = raw.readframes(-1)
+    filetype = path[-3:]
 
-    # signal = np.frombuffer(signal, dtype=np.int16)
+    if path == '' or filetype not in ['hea', 'dat', 'csv', 'txt', 'xls']:
+        print_debug("No file selected")
+        return
 
-    f_rate, signal = wavfile.read(path)
-    signal = np.int16(np.mean(signal, axis=1))
+    if filetype == "rec" or filetype == "dat" or filetype == "hea":
 
-    # gets the frame rate
-    # f_rate = raw.getframerate()
+        # open wfdb file
+        self.record = wfdb.rdrecord(path[:-4], channels=[0])
 
-    # n_channel = raw.getnchannels()
-    print_debug("framerate")
-    print_debug(f_rate)
-    # TODO: for stereo multiply frate by 2
+        # update signal object
+        temp_magnitude = np.concatenate(
+            self.record.p_signal)
 
-    time = np.linspace(0, len(signal) / f_rate, num=len(signal))
+        self.signal = Signal(magnitude=temp_magnitude, fsample=self.record.fs)
 
-    self.music_signal = MusicSignal(path, time, signal, f_rate)
-    self.pointsToAppend = 0
-    spectrogram.plot_spectro(self)
+    if filetype == "csv" or filetype == "txt" or filetype == "xls":
+        with open(path, 'r') as csvFile:    # 'r' its a mode for reading and writing
+            csvReader = csv.reader(csvFile, delimiter=',')
+            for line in csvReader:
+                temp_magnitude.append(
+                    float(line[1]))
+                temp_time.append(
+                    float(line[0]))
+        self.signal = Signal(magnitude=temp_magnitude, time=temp_time)
+
+    print_debug("Record loaded")
+
+    self.signal.set_max_samples(MAX_SAMPLES)
+    self.signal_processor = SignalProcessor(self.signal)
+
+    curvefit.update_graph(self)

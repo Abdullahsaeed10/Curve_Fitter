@@ -2,14 +2,13 @@
 
 from PyQt5 import QtGui, QtWidgets, uic, QtCore
 from PyQt5.QtWidgets import QTabWidget
-from modules import interface, resource
-from modules.instruments import *
-from modules.emphasizer import *
+from modules import interface, errormap
+from modules import resources
+from modules.curvefit import *
+from modules import errormap
 import numpy as np
-from modules.utility import print_debug, print_log
+from modules.utility import print_debug
 import sys
-
-from modules.spectrogram import create_spectrogram_figure
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -19,36 +18,25 @@ class MainWindow(QtWidgets.QMainWindow):
         ''' Main window constructor'''
 
         super(MainWindow, self).__init__(*args, **kwargs)
-        uic.loadUi('./resources/music_ws_mainwindow.ui', self)
+        uic.loadUi('./resources/curvefittingwindow.ui', self)
 
         # set the title and icon
         self.setWindowIcon(QtGui.QIcon('./resources/icons/icon.png'))
-        self.setWindowTitle("Music Workstation")
+        self.setWindowTitle("Curve Fitter")
 
         print_debug("Connectors Initialized")
-
-        # initialize the sound library
-        pygame.mixer.pre_init(
-            channels=1, allowedchanges=0, buffer=512, frequency=44100)
-        pygame.mixer.init()
-        pygame.mixer.set_num_channels(64)
-
+        self.x_type="No. Of Chunks"
+        self.y_type="Poly. Order"
         # initialize arrays and variables
+        self.signal = Signal()
+        self.signal_processor = SignalProcessor()
+        self.hidden_row = 0
 
-        self.music_signal = MusicSignal()
-        self.piano_instrument = Piano()
-        self.drums_instrument = Drums()
-        self.guitar_instrument = Guitar()
-        self.toggle_play = 0
-        self.toggle_apply = 0
-        self.pressed_key = ''
-        self.current_tab_index = 0
-        # initialize points to app
-        self.pointsToAppend = 0
-        interface.create_piano_layout(self)
+        # initialize interface components
+        interface.init_plots(self)
         interface.init_connectors(self)
-        create_spectrogram_figure(self)
-
+        create_latex_figure(self)
+        errormap.create_error_map_figure(self)
 
 
 def main():

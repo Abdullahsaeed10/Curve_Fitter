@@ -50,7 +50,7 @@ def select_error_x (self,x_type="No. Of Chunks"):
     
 def select_error_y (self,y_type="Poly. Order"):
     self.y_type=y_type
-    self.y_values=choices_def(self,choice=self.y_type)
+    
     
 
     

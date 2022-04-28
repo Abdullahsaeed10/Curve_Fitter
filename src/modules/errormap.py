@@ -15,7 +15,7 @@ import numpy as np
 from copy import copy
 from modules import interface
 from modules.utility import print_debug
-
+import threading
 
 def choices_def(self,choice):
     #max chunks is 99
@@ -103,7 +103,13 @@ def enter(self,order=1,chunks=1,percentage=9):
 def type(self,x_type,y_type):
     pass
 
-
+def error_map(self):
+        print_debug("error map assigned to thread: {}".format(threading.current_thread().name))
+        t1 = threading.Thread(target=calculate_error ,args=(self,), name='error map thread')
+        # start threads
+        t1.start()
+        # wait until threads finish their job
+        t1.join()
 
 
 
@@ -114,7 +120,8 @@ def calculate_error(self, loading_counter: int = 0):
     # for loop to get interpolated 
     # put in array
     # compare original and interpolated
-    
+    print_debug("calculate error assigned to thread: {}".format(threading.current_thread().name))
+
     self.interpolated_signal_mag=[]
   
     self.x_values=choices_def(self,choice=self.x_type)
@@ -142,7 +149,7 @@ def calculate_error(self, loading_counter: int = 0):
 
     self.signal_processor_error=copy(self.signal_processor)
     self.signal_processor_error.interpolation_type= "spline"
-    interface.progressBar_update(self)
+    interface.progressBar_update(self,1)
     for i in x:
     # to iterate on the y ranges
         self.interpolated_signal_temp=[]
@@ -181,14 +188,15 @@ def calculate_error(self, loading_counter: int = 0):
             self.interpolated_signal_temp.append(self.signal_processor_error.interpolated_signal.magnitude)
             
 
-            
         
         self.interpolated_signal_mag.append(self.interpolated_signal_temp)  
-           
+    interface.progressBar_update(self,2)    
+        
     percentage_error_function(self) 
 
     normalization(self)
- 
+    interface.progressBar_update(self,3)    
+
     plot_error_map(self,self.normalized_error)
     # multithreading
     # https://stackoverflow.com/questions/2846653/how-can-i-use-threading-in-python

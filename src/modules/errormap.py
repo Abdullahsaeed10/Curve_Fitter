@@ -13,7 +13,7 @@ plt.rcParams["figure.autolayout"] = True
 # goodluck
 import numpy as np
 from copy import copy
-
+from modules import interface
 from modules.utility import print_debug
 
 
@@ -103,6 +103,10 @@ def enter(self,order=1,chunks=1,percentage=9):
 def type(self,x_type,y_type):
     pass
 
+
+
+
+
 def calculate_error(self, loading_counter: int = 0):
     # progress bar
     # TODO: both axis should be same size
@@ -138,7 +142,7 @@ def calculate_error(self, loading_counter: int = 0):
 
     self.signal_processor_error=copy(self.signal_processor)
     self.signal_processor_error.interpolation_type= "spline"
-    
+    interface.progressBar_update(self)
     for i in x:
     # to iterate on the y ranges
         self.interpolated_signal_temp=[]

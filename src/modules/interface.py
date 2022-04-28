@@ -94,10 +94,10 @@ def toggle_fit_mode(self, mode):
 
 ######################## TODO: To be checked ########################
 
-def progressBar_value(self):
+def progressBar_update(self):
 
     for i in range(100):
-            time.sleep(0.00001)
+            time.sleep(0.001)
             self.progressBar.setValue(i+1)
     return self.progressBar.value()
 

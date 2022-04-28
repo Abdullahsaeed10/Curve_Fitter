@@ -26,15 +26,15 @@ def choices_def(self,choice):
     orders=[]
     overlap=[]
     if choice =="No. Of Chunks":
-        for c in range (1,10):
+        for c in range (1,4):
             chunks.append(c)
         return chunks
     elif choice =="Poly. Order":
-        for p in range (1,10):
+        for p in range (1,4):
             orders.append(p)
         return orders                        
     elif choice =="% Overlap":
-        for p in range (1,10):
+        for p in range (1,4):
             overlap.append(p)
         return overlap
     else:
@@ -99,29 +99,36 @@ def calculate_error(self, loading_counter: int = 0):
         # intrapolate according to the 2 numbers and add to the matrix
             
 
-            if ((self.y_type=="No. Of Chunks" ) and (self.x_type=="Poly. Order") ):
+            if (self.y_type=="No. Of Chunks" and self.x_type=="Poly. Order") :
                 self.signal_processor_error.interpolation_order=i
                 self.signal_processor_error.max_chunks=j
                 self.signal_processor_error.overlap_percent=self.signal_processor.overlap_percent
+                print("y_type==No. Of Chunks and x_type=Poly. Order")
             elif (self.y_type=="Poly. Order" and self.x_type=="No. Of Chunks" ):
                 self.signal_processor_error.interpolation_order=j
                 self.signal_processor_error.max_chunks=i
                 self.signal_processor_error.overlap_percent=self.signal_processor.overlap_percent
+                print("y_type=Poly. Order and x_type=No. Of Chunks")
             elif (self.y_type=="No. Of Chunks" and self.x_type=="% Overlap" ):
                 self.signal_processor_error.max_chunks=j
                 self.signal_processor_error.overlap_percent=i
                 self.signal_processor_error.interpolation_order=self.signal_processor.interpolation_order
+                print("y_type=No. Of Chunks and x_type=% Overlap")
             elif(self.y_type=="% Overlap" and self.x_type=="Poly. Order" ):
                 self.signal_processor_error.interpolation_order=i
                 self.signal_processor_error.overlap_percent=j
                 self.signal_processor_error.max_chunks=self.signal_processor.max_chunks
+                print("y_type=% Overlap and x_type=Poly. Order")
             elif(self.y_type=="Poly. Order" and self.x_type=="% Overlap" ):
                 self.signal_processor_error.interpolation_order=j
                 self.signal_processor_error.overlap_percent=i
                 self.signal_processor_error.max_chunks=self.signal_processor.max_chunks
+                print("y_type=Poly. Order and self.x_type=% Overlap")
             elif(self.y_type=="% Overlap" and self.x_type=="No. Of Chunks" ):
                 self.signal_processor_error.max_chunks=i
                 self.signal_processor_error.overlap_percent=j
+                self.signal_processor_error.interpolation_order=self.signal_processor.interpolation_order
+                print("y_type=% Overlap and self.x_type=No. Of Chunks")
             else:
                 print("seriously 3adat kol dah!!")
              
@@ -130,14 +137,15 @@ def calculate_error(self, loading_counter: int = 0):
             print("y=")
             print(j)
             self.signal_processor_error.interpolate() 
+            print("the interpolted signal magnitudes:")
+            print(self.signal_processor_error.interpolated_signal.magnitude)
             self.interpolated_signal_temp.append(self.signal_processor_error.interpolated_signal.magnitude)
             
 
             
         
         self.interpolated_signal_mag.append(self.interpolated_signal_temp)  
-    print("magitudes in 2d:")
-    print(self.interpolated_signal_mag)       
+           
          
     # percentage_error between interpolated signal and original signal
     self.percentage_error=[]
@@ -145,8 +153,17 @@ def calculate_error(self, loading_counter: int = 0):
     for i in range(min_val,max_val):
         self.percentage_error_temp=[]
         for j in range(min_val,max_val):
+            print("x=")
+            print(i)
+            print("y=")
+            print(j)
             clipped_signal_avg=np.average(self.signal_processor_error.clipped_signal.magnitude)
+            print("clipped_signal_avg:")
+            print(clipped_signal_avg)
             interpolated_signal_avg=np.average(self.interpolated_signal_mag[i][j])
+            print("interpolated_signal_avg:")
+            print(interpolated_signal_avg)
+
             self.percentage_error_temp.append((np.absolute(interpolated_signal_avg-clipped_signal_avg / clipped_signal_avg )))
         self.percentage_error.append(self.percentage_error_temp)
         print("there")
@@ -160,11 +177,14 @@ def calculate_error(self, loading_counter: int = 0):
         self.normalized_error_temp=[]
         for j in range(min_val,max_val):
             value=(self.percentage_error[i][j] - np.amin(self.percentage_error)) / (np.amax(self.percentage_error) - np.amin(self.percentage_error))
+            print("value:")
+            print(value)
             self.normalized_error_temp.append(value)
         self.normalized_error.append(self.normalized_error_temp)
         print("NORM")
     print("NORMALIZED:")
-    print(self.normalized_error)
+    print(self.normalized_error[0])
+    print(self.normalized_error[1])
 
    
     # multithreading
@@ -194,7 +214,7 @@ def plot_error_map(self, data = []):
   
 
 # plotting the heatmap
-    erorr_map = sn.heatmap(data = data)
+    erorr_map = sn.heatmap(data = data, annot=True)
     
   
 # displaying the plotted heatmap

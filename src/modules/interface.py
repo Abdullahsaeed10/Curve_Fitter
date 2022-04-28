@@ -163,7 +163,7 @@ def init_connectors(self):
     
     self.error_map_apply_button = self.findChild(QPushButton, "error_map_apply_button")
     self.error_map_apply_button.clicked.connect(
-         lambda: update_error(self))
+         lambda: errormap.calculate_error(self))
     
     self.x_comboBox.currentIndexChanged.connect(
         lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))

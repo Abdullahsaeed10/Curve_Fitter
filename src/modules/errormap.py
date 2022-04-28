@@ -26,15 +26,15 @@ def choices_def(self,choice):
     orders=[]
     overlap=[]
     if choice =="No. Of Chunks":
-        for c in range (1,4):
+        for c in range (1,10):
             chunks.append(c)
         return chunks
     elif choice =="Poly. Order":
-        for p in range (1,4):
+        for p in range (1,10):
             orders.append(p)
         return orders                        
     elif choice =="% Overlap":
-        for p in range (1,4):
+        for p in range (1,10):
             overlap.append(p)
         return overlap
     else:
@@ -52,9 +52,56 @@ def select_error_y (self,y_type="Poly. Order"):
     self.y_type=y_type
     
     
+def percentage_error_function(self):
+    # percentage_error between interpolated signal and original signal
+    self.percentage_error=[]
+    
+    for i in range(self.min_val,self.max_val):
+        self.percentage_error_temp=[]
+        for j in range(self.min_val,self.max_val):
+            print("x=")
+            print(i)
+            print("y=")
+            print(j)
+            original_signal_avg=np.average(self.signal_processor_error.original_signal.magnitude)
+            print("original_signal_avg:")
+            print(original_signal_avg)
+            interpolated_signal_avg=np.average(self.interpolated_signal_mag[i][j])
+            print("interpolated_signal_avg:")
+            print(interpolated_signal_avg)
+
+            self.percentage_error_temp.append((np.absolute(interpolated_signal_avg-original_signal_avg / original_signal_avg )))
+        self.percentage_error.append(self.percentage_error_temp)
+        print("there")
+    print("percentage_error:")
+    print(self.percentage_error)
+
+
+def normalization(self):
+    self.normalized_error=[]
+    
+    for i in range(self.min_val,self.max_val):
+        self.normalized_error_temp=[]
+        for j in range(self.min_val,self.max_val):
+            value=(self.percentage_error[i][j] - np.amin(self.percentage_error)) / (np.amax(self.percentage_error) - np.amin(self.percentage_error))
+            print("value:")
+            print(value)
+            self.normalized_error_temp.append(value)
+        self.normalized_error.append(self.normalized_error_temp)
+        print("NORM")
+    print("NORMALIZED:")
+    print(self.normalized_error[0])
+    print(self.normalized_error[1])
+
+
+def enter(self,order=1,chunks=1,percentage=9):
+    self.signal_processor_error.interpolation_order=order
+    self.signal_processor_error.max_chunks=chunks
+    self.signal_processor_error.overlap_percent=percentage
 
     
-
+def type(self,x_type,y_type):
+    pass
 
 def calculate_error(self, loading_counter: int = 0):
     # progress bar
@@ -73,10 +120,10 @@ def calculate_error(self, loading_counter: int = 0):
     x=self.x_values
     y=self.y_values
     
-    min_val=min(x)-1
-    max_val=max(x)
-    print(min_val)
-    print(max_val)
+    self.min_val=min(self.x_values)-1
+    self.max_val=max(self.x_values)
+    print(self.min_val)
+    print(self.max_val)
     print("x_values:")
     print(self.x_values)
     
@@ -90,7 +137,7 @@ def calculate_error(self, loading_counter: int = 0):
     print(self.y_type)
 
     self.signal_processor_error=copy(self.signal_processor)
-    self.signal_processor_error.interpolation_type=self.signal_processor.interpolation_type
+    self.signal_processor_error.interpolation_type= "spline"
     
     for i in x:
     # to iterate on the y ranges
@@ -98,37 +145,25 @@ def calculate_error(self, loading_counter: int = 0):
         for j in y:
         # intrapolate according to the 2 numbers and add to the matrix
             
-
+        #order,chunks,percentage
             if (self.y_type=="No. Of Chunks" and self.x_type=="Poly. Order") :
-                self.signal_processor_error.interpolation_order=i
-                self.signal_processor_error.max_chunks=j
-                self.signal_processor_error.overlap_percent=self.signal_processor.overlap_percent
-                print("y_type==No. Of Chunks and x_type=Poly. Order")
+                enter(self,order=i,chunks=j)
+
             elif (self.y_type=="Poly. Order" and self.x_type=="No. Of Chunks" ):
-                self.signal_processor_error.interpolation_order=j
-                self.signal_processor_error.max_chunks=i
-                self.signal_processor_error.overlap_percent=self.signal_processor.overlap_percent
-                print("y_type=Poly. Order and x_type=No. Of Chunks")
+                enter(self,order=j,chunks=i)
+
             elif (self.y_type=="No. Of Chunks" and self.x_type=="% Overlap" ):
-                self.signal_processor_error.max_chunks=j
-                self.signal_processor_error.overlap_percent=i
-                self.signal_processor_error.interpolation_order=self.signal_processor.interpolation_order
-                print("y_type=No. Of Chunks and x_type=% Overlap")
+                enter(self,chunks=j,percentage=i)
+
             elif(self.y_type=="% Overlap" and self.x_type=="Poly. Order" ):
-                self.signal_processor_error.interpolation_order=i
-                self.signal_processor_error.overlap_percent=j
-                self.signal_processor_error.max_chunks=self.signal_processor.max_chunks
-                print("y_type=% Overlap and x_type=Poly. Order")
+                enter(self,order=i,percentage=j)
+
             elif(self.y_type=="Poly. Order" and self.x_type=="% Overlap" ):
-                self.signal_processor_error.interpolation_order=j
-                self.signal_processor_error.overlap_percent=i
-                self.signal_processor_error.max_chunks=self.signal_processor.max_chunks
-                print("y_type=Poly. Order and self.x_type=% Overlap")
+                enter(self,order=j,percentage=i)
+
             elif(self.y_type=="% Overlap" and self.x_type=="No. Of Chunks" ):
-                self.signal_processor_error.max_chunks=i
-                self.signal_processor_error.overlap_percent=j
-                self.signal_processor_error.interpolation_order=self.signal_processor.interpolation_order
-                print("y_type=% Overlap and self.x_type=No. Of Chunks")
+                enter(self,chunks=i,percentage=j)
+
             else:
                 print("seriously 3adat kol dah!!")
              
@@ -146,47 +181,11 @@ def calculate_error(self, loading_counter: int = 0):
         
         self.interpolated_signal_mag.append(self.interpolated_signal_temp)  
            
-         
-    # percentage_error between interpolated signal and original signal
-    self.percentage_error=[]
+    percentage_error_function(self) 
     
-    for i in range(min_val,max_val):
-        self.percentage_error_temp=[]
-        for j in range(min_val,max_val):
-            print("x=")
-            print(i)
-            print("y=")
-            print(j)
-            clipped_signal_avg=np.average(self.signal_processor_error.clipped_signal.magnitude)
-            print("clipped_signal_avg:")
-            print(clipped_signal_avg)
-            interpolated_signal_avg=np.average(self.interpolated_signal_mag[i][j])
-            print("interpolated_signal_avg:")
-            print(interpolated_signal_avg)
-
-            self.percentage_error_temp.append((np.absolute(interpolated_signal_avg-clipped_signal_avg / clipped_signal_avg )))
-        self.percentage_error.append(self.percentage_error_temp)
-        print("there")
-    print("percentage_error:")
-    print(self.percentage_error)
-    
-
-    self.normalized_error=[]
-    
-    for i in range(min_val,max_val):
-        self.normalized_error_temp=[]
-        for j in range(min_val,max_val):
-            value=(self.percentage_error[i][j] - np.amin(self.percentage_error)) / (np.amax(self.percentage_error) - np.amin(self.percentage_error))
-            print("value:")
-            print(value)
-            self.normalized_error_temp.append(value)
-        self.normalized_error.append(self.normalized_error_temp)
-        print("NORM")
-    print("NORMALIZED:")
-    print(self.normalized_error[0])
-    print(self.normalized_error[1])
-
-   
+    normalization(self)
+ 
+    plot_error_map(self,self.normalized_error)
     # multithreading
     # https://stackoverflow.com/questions/2846653/how-can-i-use-threading-in-python
     pass
@@ -207,14 +206,14 @@ def create_error_map_figure(self):
 
 
 def plot_error_map(self, data = []):
-    calculate_error(self)
+    
     self.axes.clear()
-     
-    data = self.normalized_error
+    plt.clf()
+   
   
 
 # plotting the heatmap
-    erorr_map = sn.heatmap(data = data, annot=True)
+    erorr_map = sn.heatmap(data = data)
     
   
 # displaying the plotted heatmap

@@ -42,6 +42,7 @@ def update_interpolation(self):
 
 
 def update_extrapolation(self):
+
     self.signal_processor.extrapolate()
 
     update_graph(self)
@@ -58,6 +59,7 @@ def update_clipping(self):
 
 
 def update_error(self):
+    errormap.plot_error_map(self)
     update_error_graph(self)
 
 
@@ -167,7 +169,8 @@ def init_connectors(self):
          lambda: errormap.calculate_error(self))
     
     self.x_comboBox.currentIndexChanged.connect(
-        lambda: errormap.select_error_y(self, self.x_comboBox.currentText()))
+        lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))
+
     self.x_comboBox.currentIndexChanged.connect(
         lambda: combobox_selections_visibility(self))
     

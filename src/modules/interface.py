@@ -95,6 +95,9 @@ def toggle_fit_mode(self, mode):
 ######################## TODO: To be checked ########################
 
 def progressBar_update(self,x):
+    self.cancel_button.show()
+    self.progressBar.show()
+
     if x==1 :
         for i in range(50):
                 time.sleep(0.01)
@@ -109,6 +112,8 @@ def progressBar_update(self,x):
         for i in range(80,100):
                 time.sleep(0.1)
                 self.progressBar.setValue(i+1)
+        self.progressBar.hide()
+        self.cancel_button.hide()
         return self.progressBar.value()
 
 
@@ -205,6 +210,9 @@ def init_connectors(self):
     
     view = self.y_comboBox.view()
     view.setRowHidden(0, True)
+
+    self.progressBar.hide()
+    self.cancel_button.hide()
 
 ######################## TODO: add support for progress bar ########################
     # self.progressBar = self.findChild(QProgressBar, "progressBar")

@@ -8,6 +8,7 @@ plt.rc('axes', edgecolor='w')
 plt.rc('xtick', color='w')
 plt.rc('ytick', color='w')
 plt.rcParams['axes.titlecolor'] = "white"
+plt.rcParams['axes.labelcolor'] = "white"
 plt.rcParams["figure.autolayout"] = True
 
 # goodluck
@@ -197,7 +198,7 @@ def calculate_error(self, loading_counter: int = 0):
     normalization(self)
     interface.progressBar_update(self,3)    
 
-    plot_error_map(self,self.normalized_error)
+    plot_error_map(self,self.normalized_error,self.x_type,self.y_type)
     # multithreading
     # https://stackoverflow.com/questions/2846653/how-can-i-use-threading-in-python
     pass
@@ -217,7 +218,7 @@ def create_error_map_figure(self):
     #plot_error_map(self) # CALL WHEN ERROR_BUTTON IS CLICKED INSTEAD
 
 
-def plot_error_map(self, data = []):
+def plot_error_map(self, data = [], xlabel = '', ylabel = ''):
     
     self.axes.clear()
     plt.clf()
@@ -231,5 +232,7 @@ def plot_error_map(self, data = []):
     #plt.show()
 
     plt.title('Error Map')
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     self.ErrorMap.draw()
     self.figure.canvas.draw()

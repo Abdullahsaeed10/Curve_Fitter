@@ -16,7 +16,7 @@ import os
 
 def about_us(self):
     QMessageBox.about(
-        self, ' About ', 'This is a musical instruments emphasizer and a digital audio workstation \nCreated by junior students from the faculty of Engineering, Cairo University, Systems and Biomedical Engineering department \n \nTeam members: \n-Mohammed Nasser \n-Abdullah Saeed \n-Zeyad Mansour \n-Mariam Khaled \n \nhttps://github.com/mo-gaafar/Mini_Music_Workstation.git')
+        self, ' About ', 'This is a curve filter \nCreated by junior students from the faculty of Engineering, Cairo University, Systems and Biomedical Engineering department \n \nTeam members: \n-Mohammed Nasser \n-Abdullah Saeed \n-Zeyad Mansour \n-Mariam Khaled \n \nhttps://github.com/mo-gaafar/Curve_Fitter.git')
 
 
 def update_interpolation(self):
@@ -236,5 +236,7 @@ def init_connectors(self):
     # self.actionAbout_us = self.findChild(QAction, "actionAbout_Us")
     # self.actionAbout_us.triggered.connect(
     #     lambda: about_us(self))
-
+    self.actionAbout_us = self.findChild(QAction, "actionAbout_Us")
+    self.actionAbout_us.triggered.connect(
+        lambda: about_us(self))
     pass

@@ -11,7 +11,8 @@ from modules.utility import print_debug, print_log
 from modules import errormap
 import pyqtgraph as pg
 import time 
-
+import threading
+import os
 
 def about_us(self):
     QMessageBox.about(
@@ -99,31 +100,34 @@ def progressBar_update(self,x):
     self.progressBar.show()
 
     if x==1 :
-        for i in range(50):
+        for i in range(50):     
                 time.sleep(0.01)
                 self.progressBar.setValue(i+1)
         return self.progressBar.value()
     elif x==2 :
         for i in range(50,80):
+           
                 time.sleep(0.01)
                 self.progressBar.setValue(i+1)
         return self.progressBar.value()
     elif x==3 :
         for i in range(80,100):
+               
                 time.sleep(0.1)
                 self.progressBar.setValue(i+1)
         self.progressBar.hide()
         self.cancel_button.hide()
         return self.progressBar.value()
 
+def stop_progressBar(self):
+    print_debug("Stopping progress bar")
+    self.toggle_progressBar =1
+    # x=self.progressBar.value()
+    # self.progressBar.setValue(x)
+    self.progressBar.hide()
+    self.cancel_button.hide()
 
 
-def progressBar_end(self):
-    for i in range(50,100):
-            time.sleep(0.001)
-            self.progressBar.setValue(i+1)
-    return self.progressBar.value()
-    
 
 def init_plots(self):
     # initializing plot widgets
@@ -190,7 +194,11 @@ def init_connectors(self):
     self.error_map_apply_button = self.findChild(QPushButton, "error_map_apply_button")
     self.error_map_apply_button.clicked.connect(
          lambda: errormap.error_map(self))
-    
+   
+    self.cancel_button = self.findChild(QPushButton, "cancel_button")
+    self.cancel_button.clicked.connect(
+         lambda: stop_progressBar(self))
+   
     
    
     self.x_comboBox.currentIndexChanged.connect(

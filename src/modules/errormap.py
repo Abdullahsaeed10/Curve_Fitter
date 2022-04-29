@@ -17,6 +17,7 @@ from copy import copy
 from modules import interface
 from modules.utility import print_debug
 import threading
+from threading import Thread, Lock
 
 def choices_def(self,choice):
     #max chunks is 99
@@ -106,15 +107,22 @@ def type(self,x_type,y_type):
 
 def error_map(self):
         print_debug("error map assigned to thread: {}".format(threading.current_thread().name))
-        t1 = threading.Thread(target=calculate_error ,args=(self,), name='error map thread')
+        lock = Lock()
+       
+        t1 = Thread(target=calculate_error ,args=(self,), name='error map thread')
         # start threads
         t1.start()
         # wait until threads finish their job
-        t1.join()
-
+        #t1.join()
+# def a(self,lock):
+#     self.lock.acquire()
+#     calculate_error(self)
+#     self.lock.release()
 
 
 def calculate_error(self, loading_counter: int = 0):
+    self.toggle_progressBar =0
+                     
     # progress bar
     # TODO: both axis should be same size
     # values  and type of axis
@@ -154,11 +162,14 @@ def calculate_error(self, loading_counter: int = 0):
     for i in x:
     # to iterate on the y ranges
         self.interpolated_signal_temp=[]
+        if self.toggle_progressBar ==1:
+                break 
         for j in y:
         # intrapolate according to the 2 numbers and add to the matrix
-            
+            if self.toggle_progressBar ==1:
+                    break   
         #order,chunks,percentage
-            if (self.y_type=="No. Of Chunks" and self.x_type=="Poly. Order") :
+            elif (self.y_type=="No. Of Chunks" and self.x_type=="Poly. Order") :
                 enter(self,order=i,chunks=j)
 
             elif (self.y_type=="Poly. Order" and self.x_type=="No. Of Chunks" ):
@@ -192,12 +203,15 @@ def calculate_error(self, loading_counter: int = 0):
         
         self.interpolated_signal_mag.append(self.interpolated_signal_temp)  
     interface.progressBar_update(self,2)    
-        
+    if self.toggle_progressBar ==1:
+        return
+         
     percentage_error_function(self) 
 
     normalization(self)
     interface.progressBar_update(self,3)    
-
+    if self.toggle_progressBar ==1:
+        return
     plot_error_map(self,self.normalized_error,self.x_type,self.y_type)
     # multithreading
     # https://stackoverflow.com/questions/2846653/how-can-i-use-threading-in-python

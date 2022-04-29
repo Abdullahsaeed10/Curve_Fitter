@@ -6,13 +6,13 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
 from modules.curvefit import update_graph, update_latex
-from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
 from modules import errormap
 import pyqtgraph as pg
-import time 
+import time
 import threading
 import os
+
 
 def about_us(self):
     QMessageBox.about(
@@ -61,7 +61,6 @@ def update_clipping(self):
 
 def update_error(self):
     errormap.plot_error_map(self)
-    update_error_graph(self)
 
 
 def toggle_error_plot(self):
@@ -95,38 +94,39 @@ def toggle_fit_mode(self, mode):
 
 ######################## TODO: To be checked ########################
 
-def progressBar_update(self,x):
+
+def progressBar_update(self, x):
     self.cancel_button.show()
     self.progressBar.show()
 
-    if x==1 :
-        for i in range(50):     
-                time.sleep(0.01)
-                self.progressBar.setValue(i+1)
+    if x == 1:
+        for i in range(50):
+            time.sleep(0.01)
+            self.progressBar.setValue(i+1)
         return self.progressBar.value()
-    elif x==2 :
-        for i in range(50,80):
-           
-                time.sleep(0.01)
-                self.progressBar.setValue(i+1)
+    elif x == 2:
+        for i in range(50, 80):
+
+            time.sleep(0.01)
+            self.progressBar.setValue(i+1)
         return self.progressBar.value()
-    elif x==3 :
-        for i in range(80,100):
-               
-                time.sleep(0.1)
-                self.progressBar.setValue(i+1)
+    elif x == 3:
+        for i in range(80, 100):
+
+            time.sleep(0.1)
+            self.progressBar.setValue(i+1)
         self.progressBar.hide()
         self.cancel_button.hide()
         return self.progressBar.value()
 
+
 def stop_progressBar(self):
     print_debug("Stopping progress bar")
-    self.toggle_progressBar =1
+    self.toggle_progressBar = 1
     # x=self.progressBar.value()
     # self.progressBar.setValue(x)
     self.progressBar.hide()
     self.cancel_button.hide()
-
 
 
 def init_plots(self):
@@ -141,17 +141,18 @@ def init_plots(self):
     pen = pg.mkPen(color=(15, 255, 10), style=QtCore.Qt.DotLine, width=2)
     self.curve_plot_extrapolated = self.curve_plot.plot(pen=pen)
 
-    pen = pg.mkPen(color=(0,255,4), width=2)
+    pen = pg.mkPen(color=(200, 200, 0), width=3)
     self.curve_plot_selected_chunk = self.curve_plot.plot(pen=pen)
 
 
 def combobox_selections_visibility(self):
-        view = self.y_comboBox.view()
-        view.setRowHidden(self.hidden_row, False)
-        view.setRowHidden(self.x_comboBox.currentIndex(), True)
-        self.hidden_row = self.x_comboBox.currentIndex()
+    view = self.y_comboBox.view()
+    view.setRowHidden(self.hidden_row, False)
+    view.setRowHidden(self.x_comboBox.currentIndex(), True)
+    self.hidden_row = self.x_comboBox.currentIndex()
 
-        self.y_comboBox.setCurrentIndex((self.hidden_row + 1) % 3)
+    self.y_comboBox.setCurrentIndex((self.hidden_row + 1) % 3)
+
 
 def init_connectors(self):
     # '''Initializes all event connectors and triggers'''
@@ -170,7 +171,6 @@ def init_connectors(self):
     self.spline_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Spline'))
 
-    
     self.error_button.setCheckable(True)
     self.error_button.toggled.connect(
         lambda: toggle_error_plot(self))
@@ -178,6 +178,9 @@ def init_connectors(self):
     self.polynomial_degree_spinBox = self.findChild(
         QSpinBox, "polynomial_degree_spinBox")
     self.polynomial_degree_spinBox.valueChanged.connect(
+        lambda: update_interpolation(self))
+
+    self.overlap_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
 
     self.extrapolate_spinBox = self.findChild(
@@ -189,33 +192,31 @@ def init_connectors(self):
         QSpinBox, "chunk_number_spinBox")
     self.chunk_number_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
-    
-    
-    self.error_map_apply_button = self.findChild(QPushButton, "error_map_apply_button")
+
+    self.error_map_apply_button = self.findChild(
+        QPushButton, "error_map_apply_button")
     self.error_map_apply_button.clicked.connect(
-         lambda: errormap.error_map(self))
-   
+        lambda: errormap.error_map(self))
+
     self.cancel_button = self.findChild(QPushButton, "cancel_button")
     self.cancel_button.clicked.connect(
-         lambda: stop_progressBar(self))
-   
-    
-   
+        lambda: stop_progressBar(self))
+
     self.x_comboBox.currentIndexChanged.connect(
         lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))
 
     self.x_comboBox.currentIndexChanged.connect(
         lambda: combobox_selections_visibility(self))
-    
+
     self.x_comboBox.currentIndexChanged.connect(
         lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))
 
     self.y_comboBox.currentIndexChanged.connect(
         lambda: errormap.select_error_y(self, self.y_comboBox.currentText()))
-    
+
     self.polynomial_equation_spinBox.valueChanged.connect(
         lambda: update_latex(self))
-    
+
     view = self.y_comboBox.view()
     view.setRowHidden(0, True)
 
@@ -226,7 +227,6 @@ def init_connectors(self):
     # self.progressBar = self.findChild(QProgressBar, "progressBar")
     # self.triggered.connect(
     #     lambda: progressBar_value(self))
-
 
     ''' Menu Bar'''
     self.actionOpen = self.findChild(QAction, "actionOpen")

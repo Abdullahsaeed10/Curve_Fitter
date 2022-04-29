@@ -1,3 +1,4 @@
+from threading import Thread, Lock
 import threading
 from modules.utility import print_debug
 from modules import interface
@@ -16,7 +17,6 @@ plt.rcParams['axes.labelcolor'] = "white"
 plt.rcParams["figure.autolayout"] = True
 
 # goodluck
-from threading import Thread, Lock
 
 
 def choices_def(self, choice):
@@ -90,21 +90,22 @@ def enter(self, order=1, chunks=1, percentage=9):
 def type(self, x_type, y_type):
     pass
 
-def error_map(self):
-        print_debug("error map assigned to thread: {}".format(threading.current_thread().name))
-        lock = Lock()
-       
-        t1 = Thread(target=calculate_error ,args=(self,), name='error map thread')
-        # start threads
-        t1.start()
-        # wait until threads finish their job
-        #t1.join()
 
+def error_map(self):
+    print_debug("error map assigned to thread: {}".format(
+        threading.current_thread().name))
+    lock = Lock()
+
+    t1 = Thread(target=calculate_error, args=(self,), name='error map thread')
+    # start threads
+    t1.start()
+    # wait until threads finish their job
+    t1.join()
 
 
 def calculate_error(self, loading_counter: int = 0):
-    self.toggle_progressBar =0
-                     
+    self.toggle_progressBar = 0
+
     # progress bar
     # TODO: both axis should be same size
     # values  and type of axis
@@ -130,17 +131,17 @@ def calculate_error(self, loading_counter: int = 0):
     self.signal_processor_error.interpolation_type = "spline"
     interface.progressBar_update(self, 1)
     for i in x:
-    # to iterate on the y ranges
-        self.interpolated_signal_temp=[]
-        if self.toggle_progressBar ==1:
-                break 
+        # to iterate on the y ranges
+        self.interpolated_signal_temp = []
+        if self.toggle_progressBar == 1:
+            break
         for j in y:
-        # intrapolate according to the 2 numbers and add to the matrix
-            if self.toggle_progressBar ==1:
-                    break   
-        #order,chunks,percentage
-            elif (self.y_type=="No. Of Chunks" and self.x_type=="Poly. Order") :
-                enter(self,order=i,chunks=j)
+            # intrapolate according to the 2 numbers and add to the matrix
+            if self.toggle_progressBar == 1:
+                break
+            # order,chunks,percentage
+            elif (self.y_type == "No. Of Chunks" and self.x_type == "Poly. Order"):
+                enter(self, order=i, chunks=j)
 
             # order,chunks,percentage
             if (self.y_type == "No. Of Chunks" and self.x_type == "Poly. Order"):
@@ -168,27 +169,22 @@ def calculate_error(self, loading_counter: int = 0):
 
             self.signal_processor_error.interpolate()
             self.interpolated_signal_temp.append(
-            self.signal_processor_error.interpolated_signal.magnitude)
-        
-        self.interpolated_signal_mag.append(self.interpolated_signal_temp)  
-    interface.progressBar_update(self,2)    
-    if self.toggle_progressBar ==1:
+                self.signal_processor_error.interpolated_signal.magnitude)
+
+        self.interpolated_signal_mag.append(self.interpolated_signal_temp)
+    interface.progressBar_update(self, 2)
+    if self.toggle_progressBar == 1:
         return
-         
-    percentage_error_function(self) 
+
+    percentage_error_function(self)
 
     normalization(self)
-    interface.progressBar_update(self,3)    
-    if self.toggle_progressBar ==1:
+    interface.progressBar_update(self, 3)
+    if self.toggle_progressBar == 1:
         return
-    plot_error_map(self,self.normalized_error,self.x_type,self.y_type)
+    plot_error_map(self, self.normalized_error, self.x_type, self.y_type)
     # multithreading
     # https://stackoverflow.com/questions/2846653/how-can-i-use-threading-in-python
-    pass
-
-
-def update_error_graph(self):
-
     pass
 
 

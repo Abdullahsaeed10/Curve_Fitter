@@ -1,3 +1,4 @@
+from math import ceil
 from modules.utility import print_debug
 import numpy as np
 from copy import copy
@@ -46,6 +47,13 @@ class Signal():
     def __getitem__(self, index):
         """Returns the signal at the given index"""
         return copy(Signal(self.magnitude[index], self.fsample, self.time[index]))
+
+    def __add__(self, other):
+        """Adds two signals"""
+        if self.fsample == other.fsample:
+            return Signal(self.magnitude + other.magnitude, self.fsample, self.time)
+        else:
+            raise Exception("Signals must have the same sampling frequency")
 
     def __subtract__(self, other):
         """Subtracts two signals"""
@@ -115,16 +123,13 @@ class ChunkedSignal(Signal):
         self.chunk_length = int(len(self.magnitude)/max_chunks)
         print_debug("Chunk length: " + str(self.chunk_length))
         print_debug("Overlap percent: " + str(self.overlap_percent))
-        self.overlap_length = round(
-            self.chunk_length * (self.overlap_percent/100))  # TODO: FIX THIS
+        self.overlap_length = int(np.ceil(
+            self.chunk_length * (self.overlap_percent/100)))  # TODO: FIX THIS
         self.generate_chunks()
 
     def merge_chunks(self):
         """Merges chunks into the main signal"""
 
-        # TODO: Overlap averaging?
-
-        # THIS IS A PLACEHOLDER: ignores overlap
         # clear data
         self.time = []
         self.magnitude = []
@@ -132,29 +137,102 @@ class ChunkedSignal(Signal):
         for index in range(0, len(self.chunk_array)):
             print_debug("Merging chunk " + str(index))
             print_debug(self.chunk_array[index])
-            print_debug("Time Data" + str(self.chunk_array[index].time))
-            self.time.append(self.get_chunk_without_overlap(index).time)
-            self.magnitude.append(
-                self.get_chunk_without_overlap(index).magnitude)
+            # for each chunk
 
+            averaged_overlap = []
+            overwritten_chunk = []
+            remaining_chunk = []
+
+            # average the chunk+overlap and add to main signal
+            if index == len(self.chunk_array) - 1:
+                averaged_overlap = []  # last chunk cornercase
+            elif index == 0:
+                averaged_overlap = self.get_overlap_magnitudes(
+                    index, "left") * 2.0000000
+            else:
+                averaged_overlap = self.average_overlap(index)
+
+            # overwrite the left side overlap of the next chunk
+            # append the left averaged overlap to actual chunk
+
+            remaining_chunk = self.get_chunk_without_overlap(
+                index).magnitude[self.overlap_length:self.chunk_length]  # chunk starting after left overlap
+            print_debug("Remaining chunk: " + str(remaining_chunk))
+
+            overwritten_chunk = np.concatenate(
+                (averaged_overlap, remaining_chunk), axis=None)
+
+            print_debug("Overwritten Chunk: " + str(overwritten_chunk))
+            # add to main signal
+
+            appended_time = self.get_chunk_without_overlap(index).time
+
+            if len(appended_time) != len(overwritten_chunk):
+                difference = len(appended_time) - len(overwritten_chunk)
+                print_debug("Target Length: " + str(len(appended_time)))
+                print_debug("Length before padding: " +
+                            str(len(overwritten_chunk)))
+                overwritten_chunk.resize(len(appended_time))
+                print_debug("Length after padding: " +
+                            str(len(overwritten_chunk)))
+
+            self.time.append(appended_time)
+            self.magnitude.append(overwritten_chunk)
         # Convert to 1D arrays
         self.time = np.concatenate(self.time)
         self.magnitude = np.concatenate(self.magnitude)
 
-    def get_overlap(self, chunk_index, direction="left"):
-        # TODO: should account for first index and last index chunks
-        """Returns the overlap of the chunk"""
+    def average_overlap(self, chunk_index):
+        """Averages the overlap magnitude of two chunks"""
+        # get the overlap of left chunk and right chunk
+        right_chunk_overlap = self.get_overlap_magnitudes(
+            chunk_index, "left")
+        left_chunk_overlap = self.get_overlap_magnitudes(
+            chunk_index-1, "right")
+
+        print_debug("Right chunk overlap: " + str(right_chunk_overlap))
+        print_debug("Left chunk overlap: " + str(left_chunk_overlap))
+
+        # average the overlap
+        average_overlap = np.mean(
+            [left_chunk_overlap, right_chunk_overlap], axis=0)
+
+        print_debug("Average overlap: " + str(average_overlap))
+        # return the averaged overlap (make sure to put it in the right chunk)
+        return average_overlap
+
+    def get_overlap_magnitudes(self, chunk_index, direction="right"):
+        """Returns the overlap of the chunk from the given
+        \n chunk index = index of chunk to get overlap from
+        \n direction = location of overlap wrt to current chunk
+        \n (accounts for leftmost and rightmost cornercases)
+        \n returns a magnitude array """
         overlap_length = self.overlap_length
-        return self.chunk_array[chunk_index][-overlap_length:]
+        print_debug("Overlap length: " + str(overlap_length))
+        chunk_length = self.chunk_length
+        print_debug("Chunk length: " + str(chunk_length))
+
+        if direction == "left":
+            print_debug("Getting left overlap")
+            return self.chunk_array[chunk_index][:overlap_length].magnitude
+        elif direction == "right":
+            if chunk_index != len(self.chunk_array)-1:
+                print_debug("Getting right overlap")
+                return self.chunk_array[chunk_index][chunk_length:chunk_length+overlap_length].magnitude
+            else:
+                if overlap_length != 0:
+                    overlap_length -= 1
+                return np.zeros(overlap_length)  # Zero padding
+        else:
+            raise Exception("Direction must be left or right")
 
     def get_chunk(self, index):
         """Returns the chunk at the given index"""
         return self.chunk_array[index]
 
     def get_chunk_without_overlap(self, index):
-        """Returns the chunk without overlap"""
-        output = copy(self.chunk_array[index]
-                      [:self.chunk_length-self.overlap_length])
+        """Returns the chunk signal object without overlap"""
+        output = copy(self.chunk_array[index][:self.chunk_length])
         print_debug(" Chunk without overlap" + str(output))
         return output
 
@@ -312,6 +390,8 @@ def update_graph(self):
             draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value(
             )]
             self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)
+        else:
+            self.curve_plot_selected_chunk.setData([], [])
 
     if self.signal_processor.isExtrapolated():
         draw = self.signal_processor.extrapolated_signal

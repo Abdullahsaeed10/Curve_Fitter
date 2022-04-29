@@ -26,20 +26,21 @@ def choices_def(self, choice):
     chunks = []
     orders = []
     overlap = []
+
     if choice == "No. Of Chunks":
-        for c in range(1, 10):
+        for c in range(1, 9):
             chunks.append(c)
         return chunks
     elif choice == "Poly. Order":
-        for p in range(1, 10):
+        for p in range(1, 9):
             orders.append(p)
         return orders
     elif choice == "% Overlap":
-        for p in range(1, 10):
+        for p in range(1, 9):
             overlap.append(p)
         return overlap
     else:
-        print("DIDNOT CHOOSE ")
+        raise Exception("Invalid Axes Choice")
 
 
 def select_error_x(self, x_type="No. Of Chunks"):
@@ -57,25 +58,14 @@ def percentage_error_function(self):
     for i in range(self.min_val, self.max_val):
         self.percentage_error_temp = []
         for j in range(self.min_val, self.max_val):
-            print("x=")
-            print(i)
-            print("y=")
-            print(j)
             original_signal_avg = np.average(
                 self.signal_processor_error.original_signal.magnitude)
-            print("original_signal_avg:")
-            print(original_signal_avg)
             interpolated_signal_avg = np.average(
                 self.interpolated_signal_mag[i][j])
-            print("interpolated_signal_avg:")
-            print(interpolated_signal_avg)
-
             self.percentage_error_temp.append(
                 (np.absolute(interpolated_signal_avg-original_signal_avg / original_signal_avg)))
+
         self.percentage_error.append(self.percentage_error_temp)
-        print("there")
-    print("percentage_error:")
-    print(self.percentage_error)
 
 
 def normalization(self):
@@ -132,19 +122,6 @@ def calculate_error(self, loading_counter: int = 0):
 
     self.min_val = min(self.x_values)-1
     self.max_val = max(self.x_values)
-    print(self.min_val)
-    print(self.max_val)
-    print("x_values:")
-    print(self.x_values)
-
-    print("x_type:")
-    print(self.x_type)
-
-    print("y_values:")
-    print(self.y_values)
-
-    print("y_type:")
-    print(self.y_type)
 
     self.signal_processor_error = copy(self.signal_processor)
     self.signal_processor_error.interpolation_type = "spline"
@@ -175,15 +152,11 @@ def calculate_error(self, loading_counter: int = 0):
                 enter(self, chunks=i, percentage=j)
 
             else:
-                print("seriously 3adat kol dah!!")
+                raise Exception("Invalid Axes Choice")
 
-            print("x=")
-            print(i)
-            print("y=")
-            print(j)
+            print_debug("Error Calculated: " + "x =" + str(i) + " y=" + str(j))
+
             self.signal_processor_error.interpolate()
-            print("the interpolted signal magnitudes:")
-            print(self.signal_processor_error.interpolated_signal.magnitude)
             self.interpolated_signal_temp.append(
                 self.signal_processor_error.interpolated_signal.magnitude)
 
@@ -223,7 +196,7 @@ def plot_error_map(self, data=[], xlabel='', ylabel=''):
 
 # plotting the heatmap
     erorr_map = sn.heatmap(data=data)
-
+    error_map.invert_yaxis()
 
 # displaying the plotted heatmap
     # plt.show()

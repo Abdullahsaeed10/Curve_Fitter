@@ -153,7 +153,8 @@ class ChunkedSignal(Signal):
 
     def get_chunk_without_overlap(self, index):
         """Returns the chunk without overlap"""
-        output = copy(self.chunk_array[index][:-self.overlap_length])
+        output = copy(self.chunk_array[index]
+                      [:self.chunk_length-self.overlap_length])
         print_debug(" Chunk without overlap" + str(output))
         return output
 
@@ -308,7 +309,8 @@ def update_graph(self):
         self.curve_plot_interpolated.setData(draw.time, draw.magnitude)
 
         if self.signal_processor.interpolation_type == "spline":
-            draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value()]
+            draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value(
+            )]
             self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)
 
     if self.signal_processor.isExtrapolated():
@@ -317,16 +319,21 @@ def update_graph(self):
 
     update_latex(self)
 
+
 def update_latex(self):
     if self.signal_processor.interpolation_type == "spline":
-        latex(self, self.signal_processor.interpolated_signal.get_coefficients(self.polynomial_equation_spinBox.value()))
-        self.polynomial_equation_spinBox.setMaximum(self.chunk_number_spinBox.value() - 1)
-        
-        draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value()]
+        latex(self, self.signal_processor.interpolated_signal.get_coefficients(
+            self.polynomial_equation_spinBox.value()))
+        self.polynomial_equation_spinBox.setMaximum(
+            self.chunk_number_spinBox.value() - 1)
+
+        draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value(
+        )]
         self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)
 
     else:
         latex(self, self.signal_processor.interpolated_signal.coefficients)
+
 
 def create_latex_figure(self):
     self.fig = plt.figure()

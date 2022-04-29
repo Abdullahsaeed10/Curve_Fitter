@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushB
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
-from modules.curvefit import update_graph, update_latex
+from modules.curvefit import update_graph, update_latex,percentage_poly_or
 from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
 from modules import errormap
@@ -56,6 +56,7 @@ def update_clipping(self):
                 str(len(self.signal_processor.clipped_signal)))
     update_interpolation(self)
     update_extrapolation(self)
+    self.percentage_error_label.setNum(percentage_poly_or(self))
 
 
 def update_error(self):
@@ -180,6 +181,10 @@ def init_connectors(self):
     view = self.y_comboBox.view()
     view.setRowHidden(0, True)
 
+    #percentage error extra intra
+   
+    percentage_error_label = self.findChild(QLabel, "percentage_error_label")
+   
 ######################## TODO: add support for progress bar ########################
     # self.progressBar = self.findChild(QProgressBar, "progressBar")
     # self.triggered.connect(

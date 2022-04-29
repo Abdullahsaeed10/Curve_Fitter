@@ -39,14 +39,13 @@ def update_interpolation(self):
             N_chunks=chunk_number,
             overlap_percent=overlap_percent)
 
-    update_graph(self)
-
-
-def update_extrapolation(self):
-
     self.signal_processor.extrapolate()
-
     update_graph(self)
+
+
+# def update_extrapolation(self):
+#     self.signal_processor.extrapolate()
+#     update_graph(self)
 
 
 def update_clipping(self):
@@ -56,7 +55,7 @@ def update_clipping(self):
     print_debug("Signal length: " +
                 str(len(self.signal_processor.clipped_signal)))
     update_interpolation(self)
-    update_extrapolation(self)
+    # update_extrapolation(self)
 
 
 def update_error(self):
@@ -92,7 +91,7 @@ def toggle_fit_mode(self, mode):
         self.spline_button.setDown(True)
         self.spline_button.setChecked(True)
 
-######################## TODO: To be checked ########################
+# BUG: Threading causes crash
 
 
 def progressBar_update(self, x):

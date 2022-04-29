@@ -128,7 +128,7 @@ class ChunkedSignal(Signal):
         self.generate_chunks()
 
     def merge_chunks(self):
-        """Merges chunks into the main signal"""
+        """Merges chunks into the main signal superclass"""
 
         # clear data
         self.time = []
@@ -148,7 +148,7 @@ class ChunkedSignal(Signal):
                 averaged_overlap = []  # last chunk cornercase
             elif index == 0:
                 averaged_overlap = self.get_overlap_magnitudes(
-                    index, "left") * 2.0000000
+                    index, "left")
             else:
                 averaged_overlap = self.average_overlap(index)
 
@@ -178,6 +178,7 @@ class ChunkedSignal(Signal):
 
             self.time.append(appended_time)
             self.magnitude.append(overwritten_chunk)
+
         # Convert to 1D arrays
         self.time = np.concatenate(self.time)
         self.magnitude = np.concatenate(self.magnitude)

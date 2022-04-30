@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushB
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
-from modules.curvefit import update_graph, update_latex,percentage_poly_or
+from modules.curvefit import update_graph, update_latex
 from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
 from modules import errormap
@@ -56,7 +56,7 @@ def update_clipping(self):
                 str(len(self.signal_processor.clipped_signal)))
     update_interpolation(self)
     update_extrapolation(self)
-    self.percentage_error_label.setNum(percentage_poly_or(self))
+    self.percentage_error_label.setNum(int(self.signal_processor.percentage_error(self.signal_processor.clipped_signal.magnitude, self.signal_processor.interpolated_signal.magnitude)))
 
 
 def update_error(self):

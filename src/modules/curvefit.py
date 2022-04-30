@@ -297,6 +297,17 @@ class SignalProcessor():
         else:
             return True
 
+    def percentage_error(self,signal1,signal2):
+        # signal1 is the original
+        self.sub=np.subtract(signal1,signal2)
+
+        signal1_minus_signal2=np.average(np.absolute(self.sub))
+        signal1_avg=np.average(signal1)
+
+        self.percentageoferror=np.absolute(signal1_minus_signal2 /signal1_avg)*100
+        print(self.percentageoferror)
+        return self.percentageoferror
+
 
 def update_graph(self):
     if self.signal_processor.original_signal != None:
@@ -327,14 +338,12 @@ def create_latex_figure(self):
     self.Latex = Canvas(self.fig)
     self.latex_box.addWidget(self.Latex)
 
-def percentage_poly_or(self):
-     N_original = len(self.signal_processor.original_signal)
-     extrapolated_signal_sum=np.sum(self.signal_processor.extrapolated_signal.magnitude)
-     interpolated_signal_sum=np.sum(self.signal_processor.interpolated_signal.magnitude)
-     total_avg=(extrapolated_signal_sum/N_original)+(interpolated_signal_sum/N_original)
-     original_signal_avg=np.average(self.signal_processor.original_signal.magnitude)
-     self.percentage_poly_or=np.absolute(total_avg-original_signal_avg / original_signal_avg)*100
-     return self.percentage_poly_or
+
+
+
+
+
+
 
               
     

@@ -17,28 +17,13 @@ from copy import copy
 from modules.utility import print_debug
 
 
-def choices_def(self,choice):
-    #max chunks is 99
-    #max order is 9
-    #max % is 25
-
-    chunks=[]
-    orders=[]
-    overlap=[]
-    if choice =="No. Of Chunks":
-        for c in range (1,10):
-            chunks.append(c)
-        return chunks
-    elif choice =="Poly. Order":
-        for p in range (1,10):
-            orders.append(p)
-        return orders                        
-    elif choice =="% Overlap":
-        for p in range (1,10):
-            overlap.append(p)
-        return overlap
-    else:
-        print("DIDNOT CHOOSE ")
+def values(self):
+    # whether what the user chose it will still be the same no. for both axes 
+    vals=[]                       
+    for v in range (1,10):
+        vals.append(v)
+    return vals
+   
 
 
 def select_error_x (self,x_type="No. Of Chunks"):
@@ -55,22 +40,16 @@ def select_error_y (self,y_type="Poly. Order"):
 def percentage_error_function(self):
     # percentage_error between interpolated signal and original signal
     self.percentage_error=[]
-    
     for i in range(self.min_val,self.max_val):
         self.percentage_error_temp=[]
         for j in range(self.min_val,self.max_val):
-            print("x=")
-            print(i)
-            print("y=")
-            print(j)
-            original_signal_avg=np.average(self.signal_processor_error.original_signal.magnitude)
-            print("original_signal_avg:")
-            print(original_signal_avg)
-            interpolated_signal_avg=np.average(self.interpolated_signal_mag[i][j])
-            print("interpolated_signal_avg:")
-            print(interpolated_signal_avg)
-
-            self.percentage_error_temp.append((np.absolute(interpolated_signal_avg-original_signal_avg / original_signal_avg )))
+            N_clipped = len(self.interpolated_signal_mag[i][j])
+            N_original = len(self.signal_processor_error.original_signal)
+            print(len(self.signal_processor_error.original_signal.magnitude[:N_clipped]))
+            print(len(self.interpolated_signal_mag[i][j]))
+            percentage_value=self.signal_processor_error.percentage_error(self.signal_processor_error.original_signal.magnitude[:N_clipped],self.interpolated_signal_mag[i][j])
+         
+            self.percentage_error_temp.append(percentage_value)
         self.percentage_error.append(self.percentage_error_temp)
         print("there")
     print("percentage_error:")
@@ -98,10 +77,27 @@ def enter(self,order=1,chunks=1,percentage=9):
     self.signal_processor_error.interpolation_order=order
     self.signal_processor_error.max_chunks=chunks
     self.signal_processor_error.overlap_percent=percentage
+    print("overlap")
+    print(self.signal_processor_error.overlap_percent)
 
     
-def type(self,x_type,y_type):
-    pass
+def type_selection(self,x_type,y_type,i,j):
+    #order,chunks,percentage
+    self.y_type==y_type
+    self.x_type==x_type
+    if ((self.y_type=="No. Of Chunks" and self.x_type=="Poly. Order") or (self.y_type=="Poly. Order" and self.x_type=="No. Of Chunks")) :
+        enter(self,order=i,chunks=j)
+
+    elif ((self.y_type=="No. Of Chunks" and self.x_type=="% Overlap") or (self.y_type=="% Overlap" and self.x_type=="No. Of Chunks" )):
+        enter(self,chunks=i,percentage=j)
+
+    elif((self.y_type=="% Overlap" and self.x_type=="Poly. Order")or (self.y_type=="Poly. Order" and self.x_type=="% Overlap" )):
+        enter(self,order=i,percentage=j)
+    else:
+        print("seriously 3adat kol dah!!")
+
+
+
 
 def calculate_error(self, loading_counter: int = 0):
     # progress bar
@@ -110,12 +106,15 @@ def calculate_error(self, loading_counter: int = 0):
     # for loop to get interpolated 
     # put in array
     # compare original and interpolated
-    
+    self.signal_processor_error=copy(self.signal_processor)
+    self.signal_processor_error.interpolation_type= "spline"
+    if (self.signal_processor_error.interpolation_type== "polynomial"):
+        raise Exception("Interpolation type has no error map")
     self.interpolated_signal_mag=[]
   
-    self.x_values=choices_def(self,choice=self.x_type)
+    self.x_values=values(self)
 
-    self.y_values=choices_def(self,choice=self.y_type)
+    self.y_values=values(self)
 
     x=self.x_values
     y=self.y_values
@@ -136,9 +135,7 @@ def calculate_error(self, loading_counter: int = 0):
     print("y_type:")
     print(self.y_type)
 
-    self.signal_processor_error=copy(self.signal_processor)
-    self.signal_processor_error.interpolation_type= "spline"
-    
+
     for i in x:
     # to iterate on the y ranges
         self.interpolated_signal_temp=[]
@@ -146,27 +143,8 @@ def calculate_error(self, loading_counter: int = 0):
         # intrapolate according to the 2 numbers and add to the matrix
             
         #order,chunks,percentage
-            if (self.y_type=="No. Of Chunks" and self.x_type=="Poly. Order") :
-                enter(self,order=i,chunks=j)
-
-            elif (self.y_type=="Poly. Order" and self.x_type=="No. Of Chunks" ):
-                enter(self,order=j,chunks=i)
-
-            elif (self.y_type=="No. Of Chunks" and self.x_type=="% Overlap" ):
-                enter(self,chunks=j,percentage=i)
-
-            elif(self.y_type=="% Overlap" and self.x_type=="Poly. Order" ):
-                enter(self,order=i,percentage=j)
-
-            elif(self.y_type=="Poly. Order" and self.x_type=="% Overlap" ):
-                enter(self,order=j,percentage=i)
-
-            elif(self.y_type=="% Overlap" and self.x_type=="No. Of Chunks" ):
-                enter(self,chunks=i,percentage=j)
-
-            else:
-                print("seriously 3adat kol dah!!")
-             
+            
+            type_selection(self,self.x_type,self.y_type,i,j) 
             print("x=")
             print(i)
             print("y=")

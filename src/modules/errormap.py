@@ -17,6 +17,7 @@ plt.rcParams['axes.titlecolor'] = "white"
 plt.rcParams['axes.labelcolor'] = "white"
 plt.rcParams["figure.autolayout"] = True
 
+
 def values(self):
     # whether what the user chose it will still be the same no. for both axes
     vals = []
@@ -44,28 +45,39 @@ def normalization(self):
             self.normalized_error_temp.append(value)
         self.normalized_error.append(self.normalized_error_temp)
 
+# TODO: Instead of these defaults we should take the input from the user
 
-def enter(self, order=1, chunks=1, percentage=9):
+
+def enter(self, order=3, chunks=10, overlap=9):
+    # gets user defaults from original signal processor object
+    if order == 3:
+        order = self.signal_processor.interpolation_order
+    if chunks == 10:
+        chunks = self.signal_processor.max_chunks
+    if overlap == 9:
+        overlap = self.signal_processor.overlap_percent
+
+    # sets user input
+
     self.signal_processor_error.interpolation_order = order
     self.signal_processor_error.max_chunks = chunks
-    self.signal_processor_error.overlap_percent = percentage
+    self.signal_processor_error.overlap_percent = overlap
 
 
 def type_selection(self, x_type, y_type, i, j):
-    # order,chunks,percentage
+    # order,chunks,overlap
     self.y_type == y_type
     self.x_type == x_type
     if ((self.y_type == "No. Of Chunks" and self.x_type == "Poly. Order") or (self.y_type == "Poly. Order" and self.x_type == "No. Of Chunks")):
         enter(self, order=i, chunks=j)
 
     elif ((self.y_type == "No. Of Chunks" and self.x_type == "% Overlap") or (self.y_type == "% Overlap" and self.x_type == "No. Of Chunks")):
-        enter(self, chunks=i, percentage=j)
+        enter(self, chunks=i, overlap=j)
 
     elif((self.y_type == "% Overlap" and self.x_type == "Poly. Order") or (self.y_type == "Poly. Order" and self.x_type == "% Overlap")):
-        enter(self, order=i, percentage=j)
+        enter(self, order=i, overlap=j)
     else:
         raise Exception("Invalid Selection")
-
 
 
 def error_map(self):
@@ -94,7 +106,7 @@ def calculate_error(self, loading_counter: int = 0):
     if (self.signal_processor_error.interpolation_type == "polynomial"):
         raise Exception("Interpolation type has no error map")
         return
-       
+
     interface.progressBar_update(self, 1)
 
     self.x_values = values(self)
@@ -117,30 +129,24 @@ def calculate_error(self, loading_counter: int = 0):
         for j in y:
             # intrapolate according to the 2 numbers and add to the matrix
 
-            # order,chunks,percentage
+            # order,chunks,overlap
             type_selection(self, self.x_type, self.y_type, i, j)
 
             self.signal_processor_error.interpolate()
 
             self.percentage_error_temp.append(
                 self.signal_processor_error.percentage_error())
-            
+
             print_debug("Error Calculated: " + "x =" + str(i) + " y=" + str(j))
         self.percentage_error.append(self.percentage_error_temp)
 
     # percentage_error_function(self)
-
-    normalization(self)
-
-  
-
     interface.progressBar_update(self, 2)
     if self.toggle_progressBar == 1:
         return
 
-    percentage_error_function(self)
-
     normalization(self)
+
     interface.progressBar_update(self, 3)
     if self.toggle_progressBar == 1:
         return

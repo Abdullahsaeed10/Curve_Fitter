@@ -6,16 +6,17 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from modules import openfile
 from modules.curvefit import update_graph, update_latex
-from modules.errormap import update_error_graph
 from modules.utility import print_debug, print_log
 from modules import errormap
 import pyqtgraph as pg
-import time 
+import time
+import threading
+import os
 
 
 def about_us(self):
     QMessageBox.about(
-        self, ' About ', 'This is a musical instruments emphasizer and a digital audio workstation \nCreated by junior students from the faculty of Engineering, Cairo University, Systems and Biomedical Engineering department \n \nTeam members: \n-Mohammed Nasser \n-Abdullah Saeed \n-Zeyad Mansour \n-Mariam Khaled \n \nhttps://github.com/mo-gaafar/Mini_Music_Workstation.git')
+        self, ' About ', 'This is a curve filter \nCreated by junior students from the faculty of Engineering, Cairo University, Systems and Biomedical Engineering department \n \nTeam members: \n-Mohammed Nasser \n-Abdullah Saeed \n-Zeyad Mansour \n-Mariam Khaled \n \nhttps://github.com/mo-gaafar/Curve_Fitter.git')
 
 
 def update_interpolation(self):
@@ -37,14 +38,9 @@ def update_interpolation(self):
             order=order,
             N_chunks=chunk_number,
             overlap_percent=overlap_percent)
-
-    update_graph(self)
-
-
-def update_extrapolation(self):
-
+    
     self.signal_processor.extrapolate()
-
+    update_error_label(self)
     update_graph(self)
 
 
@@ -55,12 +51,14 @@ def update_clipping(self):
     print_debug("Signal length: " +
                 str(len(self.signal_processor.clipped_signal)))
     update_interpolation(self)
-    update_extrapolation(self)
+    # update_extrapolation(self)
 
+def update_error_label(self):
+    self.percentage_error_label.setNum(
+        int(self.signal_processor.percentage_error()))
 
 def update_error(self):
     errormap.plot_error_map(self)
-    update_error_graph(self)
 
 
 def toggle_error_plot(self):
@@ -92,14 +90,42 @@ def toggle_fit_mode(self, mode):
         self.spline_button.setDown(True)
         self.spline_button.setChecked(True)
 
-######################## TODO: To be checked ########################
+# BUG: Threading causes crash
 
-def progressBar_value(self):
 
-    for i in range(100):
-            time.sleep(0.00001)
+
+def progressBar_update(self, x):
+    self.cancel_button.show()
+    self.progressBar.show()
+
+    if x == 1:
+        for i in range(50):
+            time.sleep(0.01)
             self.progressBar.setValue(i+1)
-    return self.progressBar.value()
+        return self.progressBar.value()
+    elif x == 2:
+        for i in range(50, 80):
+
+            time.sleep(0.01)
+            self.progressBar.setValue(i+1)
+        return self.progressBar.value()
+    elif x == 3:
+        for i in range(80, 100):
+
+            time.sleep(0.1)
+            self.progressBar.setValue(i+1)
+        self.progressBar.hide()
+        self.cancel_button.hide()
+        return self.progressBar.value()
+
+
+def stop_progressBar(self):
+    print_debug("Stopping progress bar")
+    self.toggle_progressBar = 1
+    # x=self.progressBar.value()
+    # self.progressBar.setValue(x)
+    self.progressBar.hide()
+    self.cancel_button.hide()
 
 
 def init_plots(self):
@@ -114,26 +140,30 @@ def init_plots(self):
     pen = pg.mkPen(color=(15, 255, 10), style=QtCore.Qt.DotLine, width=2)
     self.curve_plot_extrapolated = self.curve_plot.plot(pen=pen)
 
-    pen = pg.mkPen(color=(0,255,4), width=2)
+    pen = pg.mkPen(color=(200, 200, 0), width=3)
     self.curve_plot_selected_chunk = self.curve_plot.plot(pen=pen)
 
 
 def combobox_selections_visibility(self):
-        view = self.y_comboBox.view()
-        view.setRowHidden(self.hidden_row, False)
-        view.setRowHidden(self.x_comboBox.currentIndex(), True)
-        self.hidden_row = self.x_comboBox.currentIndex()
+    view = self.y_comboBox.view()
+    view.setRowHidden(self.hidden_row, False)
+    view.setRowHidden(self.x_comboBox.currentIndex(), True)
+    self.hidden_row = self.x_comboBox.currentIndex()
 
-        self.y_comboBox.setCurrentIndex((self.hidden_row + 1) % 3)
+    self.y_comboBox.setCurrentIndex((self.hidden_row + 1) % 3)
+
 
 def init_connectors(self):
     # '''Initializes all event connectors and triggers'''
-
+    
     self.chunk_button = self.findChild(QToolButton, "chunk_button")
     self.chunk_button.setCheckable(True)
     self.chunk_button.setDown(True)
     self.chunk_button.setChecked(True)
-
+    
+    self.progressBar.hide()
+    self.cancel_button.hide()
+    
     self.spline_options_widget.hide()
     self.polynomial_equation_spinBox.hide()
     self.chunk_button.clicked.connect(
@@ -143,7 +173,6 @@ def init_connectors(self):
     self.spline_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Spline'))
 
-    
     self.error_button.setCheckable(True)
     self.error_button.toggled.connect(
         lambda: toggle_error_plot(self))
@@ -151,6 +180,9 @@ def init_connectors(self):
     self.polynomial_degree_spinBox = self.findChild(
         QSpinBox, "polynomial_degree_spinBox")
     self.polynomial_degree_spinBox.valueChanged.connect(
+        lambda: update_interpolation(self))
+
+    self.overlap_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
 
     self.extrapolate_spinBox = self.findChild(
@@ -162,35 +194,42 @@ def init_connectors(self):
         QSpinBox, "chunk_number_spinBox")
     self.chunk_number_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
-    
-    
-    self.error_map_apply_button = self.findChild(QPushButton, "error_map_apply_button")
+
+    self.error_map_apply_button = self.findChild(
+        QPushButton, "error_map_apply_button")
     self.error_map_apply_button.clicked.connect(
-         lambda: errormap.calculate_error(self))
-    
+        lambda: errormap.calculate_error(self))
+
+    self.cancel_button = self.findChild(QPushButton, "cancel_button")
+    self.cancel_button.clicked.connect(
+        lambda: stop_progressBar(self))
+
     self.x_comboBox.currentIndexChanged.connect(
         lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))
 
     self.x_comboBox.currentIndexChanged.connect(
         lambda: combobox_selections_visibility(self))
-    
-    self.x_comboBox.currentIndexChanged.connect(
-        lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))
 
     self.y_comboBox.currentIndexChanged.connect(
         lambda: errormap.select_error_y(self, self.y_comboBox.currentText()))
-    
+
     self.polynomial_equation_spinBox.valueChanged.connect(
         lambda: update_latex(self))
-    
+
     view = self.y_comboBox.view()
     view.setRowHidden(0, True)
 
-######################## TODO: add support for progress bar ########################
+    # percentage error extra intra
+
+    percentage_error_label = self.findChild(QLabel, "percentage_error_label")
+    
+    
+
+
+    #TODO: Add support for progress bar
     # self.progressBar = self.findChild(QProgressBar, "progressBar")
     # self.triggered.connect(
     #     lambda: progressBar_value(self))
-
 
     ''' Menu Bar'''
     self.actionOpen = self.findChild(QAction, "actionOpen")
@@ -200,5 +239,7 @@ def init_connectors(self):
     # self.actionAbout_us = self.findChild(QAction, "actionAbout_Us")
     # self.actionAbout_us.triggered.connect(
     #     lambda: about_us(self))
-
+    self.actionAbout_us = self.findChild(QAction, "actionAbout_Us")
+    self.actionAbout_us.triggered.connect(
+        lambda: about_us(self))
     pass

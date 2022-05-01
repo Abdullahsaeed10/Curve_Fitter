@@ -31,7 +31,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.signal = Signal()
         self.signal_processor = SignalProcessor()
         self.hidden_row = 0
-
+        self.toggle_progressBar = 0
         # initialize interface components
         interface.init_plots(self)
         interface.init_connectors(self)

@@ -377,6 +377,21 @@ class SignalProcessor():
         else:
             return True
 
+    def percentage_error(self):
+        # signal1 is the original
+        signal2 = self.interpolated_signal.magnitude
+        signal1 = self.original_signal.magnitude[0:len(signal2)]
+
+        self.sub = np.subtract(signal1, signal2)
+
+        signal1_minus_signal2 = np.average(np.absolute(self.sub))
+        signal1_avg = np.average(signal1)
+
+        self.percentageoferror = np.absolute(
+            signal1_minus_signal2 / signal1_avg)*100
+        print(self.percentageoferror)
+        return self.percentageoferror
+
 
 def update_graph(self):
     if self.signal_processor.original_signal != None:
@@ -407,7 +422,6 @@ def update_latex(self):
             self.polynomial_equation_spinBox.value()))
         self.polynomial_equation_spinBox.setMaximum(
             self.chunk_number_spinBox.value() - 1)
-
         draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value(
         )]
         self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)

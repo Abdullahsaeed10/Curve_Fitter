@@ -1,3 +1,4 @@
+
 from threading import Thread, Lock
 import threading
 from modules.utility import print_debug
@@ -16,32 +17,12 @@ plt.rcParams['axes.titlecolor'] = "white"
 plt.rcParams['axes.labelcolor'] = "white"
 plt.rcParams["figure.autolayout"] = True
 
-# goodluck
-
-
-def choices_def(self, choice):
-    # max chunks is 99
-    # max order is 9
-    # max % is 25
-
-    chunks = []
-    orders = []
-    overlap = []
-
-    if choice == "No. Of Chunks":
-        for c in range(1, 9):
-            chunks.append(c)
-        return chunks
-    elif choice == "Poly. Order":
-        for p in range(1, 9):
-            orders.append(p)
-        return orders
-    elif choice == "% Overlap":
-        for p in range(1, 9):
-            overlap.append(p)
-        return overlap
-    else:
-        raise Exception("Invalid Axes Choice")
+def values(self):
+    # whether what the user chose it will still be the same no. for both axes
+    vals = []
+    for v in range(1, 10):
+        vals.append(v)
+    return vals
 
 
 def select_error_x(self, x_type="No. Of Chunks"):
@@ -50,23 +31,6 @@ def select_error_x(self, x_type="No. Of Chunks"):
 
 def select_error_y(self, y_type="Poly. Order"):
     self.y_type = y_type
-
-
-def percentage_error_function(self):
-    # percentage_error between interpolated signal and original signal
-    self.percentage_error = []
-
-    for i in range(self.min_val, self.max_val):
-        self.percentage_error_temp = []
-        for j in range(self.min_val, self.max_val):
-            original_signal_avg = np.average(
-                self.signal_processor_error.original_signal.magnitude)
-            interpolated_signal_avg = np.average(
-                self.interpolated_signal_mag[i][j])
-            self.percentage_error_temp.append(
-                (np.absolute(interpolated_signal_avg-original_signal_avg / original_signal_avg)))
-
-        self.percentage_error.append(self.percentage_error_temp)
 
 
 def normalization(self):
@@ -87,8 +51,21 @@ def enter(self, order=1, chunks=1, percentage=9):
     self.signal_processor_error.overlap_percent = percentage
 
 
-def type(self, x_type, y_type):
-    pass
+def type_selection(self, x_type, y_type, i, j):
+    # order,chunks,percentage
+    self.y_type == y_type
+    self.x_type == x_type
+    if ((self.y_type == "No. Of Chunks" and self.x_type == "Poly. Order") or (self.y_type == "Poly. Order" and self.x_type == "No. Of Chunks")):
+        enter(self, order=i, chunks=j)
+
+    elif ((self.y_type == "No. Of Chunks" and self.x_type == "% Overlap") or (self.y_type == "% Overlap" and self.x_type == "No. Of Chunks")):
+        enter(self, chunks=i, percentage=j)
+
+    elif((self.y_type == "% Overlap" and self.x_type == "Poly. Order") or (self.y_type == "Poly. Order" and self.x_type == "% Overlap")):
+        enter(self, order=i, percentage=j)
+    else:
+        raise Exception("Invalid Selection")
+
 
 
 def error_map(self):
@@ -112,14 +89,20 @@ def calculate_error(self, loading_counter: int = 0):
     # for loop to get interpolated
     # put in array
     # compare original and interpolated
+    self.signal_processor_error = copy(self.signal_processor)
+    self.signal_processor_error.interpolation_type = "spline"
+    if (self.signal_processor_error.interpolation_type == "polynomial"):
+        raise Exception("Interpolation type has no error map")
+        return
+       
+    interface.progressBar_update(self, 1)
+
+    self.x_values = values(self)
+
+    self.y_values = values(self)
+
     print_debug("calculate error assigned to thread: {}".format(
         threading.current_thread().name))
-
-    self.interpolated_signal_mag = []
-
-    self.x_values = choices_def(self, choice=self.x_type)
-
-    self.y_values = choices_def(self, choice=self.y_type)
 
     x = self.x_values
     y = self.y_values
@@ -127,51 +110,30 @@ def calculate_error(self, loading_counter: int = 0):
     self.min_val = min(self.x_values)-1
     self.max_val = max(self.x_values)
 
-    self.signal_processor_error = copy(self.signal_processor)
-    self.signal_processor_error.interpolation_type = "spline"
-    interface.progressBar_update(self, 1)
+    self.percentage_error = []
     for i in x:
         # to iterate on the y ranges
-        self.interpolated_signal_temp = []
-        if self.toggle_progressBar == 1:
-            break
+        self.percentage_error_temp = []
         for j in y:
             # intrapolate according to the 2 numbers and add to the matrix
-            if self.toggle_progressBar == 1:
-                break
-            # order,chunks,percentage
-            elif (self.y_type == "No. Of Chunks" and self.x_type == "Poly. Order"):
-                enter(self, order=i, chunks=j)
 
             # order,chunks,percentage
-            if (self.y_type == "No. Of Chunks" and self.x_type == "Poly. Order"):
-                enter(self, order=i, chunks=j)
-
-            elif (self.y_type == "Poly. Order" and self.x_type == "No. Of Chunks"):
-                enter(self, order=j, chunks=i)
-
-            elif (self.y_type == "No. Of Chunks" and self.x_type == "% Overlap"):
-                enter(self, chunks=j, percentage=i)
-
-            elif(self.y_type == "% Overlap" and self.x_type == "Poly. Order"):
-                enter(self, order=i, percentage=j)
-
-            elif(self.y_type == "Poly. Order" and self.x_type == "% Overlap"):
-                enter(self, order=j, percentage=i)
-
-            elif(self.y_type == "% Overlap" and self.x_type == "No. Of Chunks"):
-                enter(self, chunks=i, percentage=j)
-
-            else:
-                raise Exception("Invalid Axes Choice")
-
-            print_debug("Error Calculated: " + "x =" + str(i) + " y=" + str(j))
+            type_selection(self, self.x_type, self.y_type, i, j)
 
             self.signal_processor_error.interpolate()
-            self.interpolated_signal_temp.append(
-                self.signal_processor_error.interpolated_signal.magnitude)
 
-        self.interpolated_signal_mag.append(self.interpolated_signal_temp)
+            self.percentage_error_temp.append(
+                self.signal_processor_error.percentage_error())
+            
+            print_debug("Error Calculated: " + "x =" + str(i) + " y=" + str(j))
+        self.percentage_error.append(self.percentage_error_temp)
+
+    # percentage_error_function(self)
+
+    normalization(self)
+
+  
+
     interface.progressBar_update(self, 2)
     if self.toggle_progressBar == 1:
         return
@@ -205,7 +167,6 @@ def plot_error_map(self, data=[], xlabel='', ylabel=''):
 
 # plotting the heatmap
     erorr_map = sn.heatmap(data=data)
-    error_map.invert_yaxis()
 
 # displaying the plotted heatmap
     # plt.show()

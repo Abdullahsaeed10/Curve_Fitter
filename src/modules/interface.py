@@ -38,14 +38,10 @@ def update_interpolation(self):
             order=order,
             N_chunks=chunk_number,
             overlap_percent=overlap_percent)
-
+    
     self.signal_processor.extrapolate()
+    update_error_label(self)
     update_graph(self)
-
-
-# def update_extrapolation(self):
-#     self.signal_processor.extrapolate()
-#     update_graph(self)
 
 
 def update_clipping(self):
@@ -57,6 +53,9 @@ def update_clipping(self):
     update_interpolation(self)
     # update_extrapolation(self)
 
+def update_error_label(self):
+    self.percentage_error_label.setNum(
+        int(self.signal_processor.percentage_error()))
 
 def update_error(self):
     errormap.plot_error_map(self)
@@ -92,6 +91,7 @@ def toggle_fit_mode(self, mode):
         self.spline_button.setChecked(True)
 
 # BUG: Threading causes crash
+
 
 
 def progressBar_update(self, x):
@@ -155,12 +155,15 @@ def combobox_selections_visibility(self):
 
 def init_connectors(self):
     # '''Initializes all event connectors and triggers'''
-
+    
     self.chunk_button = self.findChild(QToolButton, "chunk_button")
     self.chunk_button.setCheckable(True)
     self.chunk_button.setDown(True)
     self.chunk_button.setChecked(True)
-
+    
+    self.progressBar.hide()
+    self.cancel_button.hide()
+    
     self.spline_options_widget.hide()
     self.polynomial_equation_spinBox.hide()
     self.chunk_button.clicked.connect(
@@ -195,7 +198,7 @@ def init_connectors(self):
     self.error_map_apply_button = self.findChild(
         QPushButton, "error_map_apply_button")
     self.error_map_apply_button.clicked.connect(
-        lambda: errormap.error_map(self))
+        lambda: errormap.calculate_error(self))
 
     self.cancel_button = self.findChild(QPushButton, "cancel_button")
     self.cancel_button.clicked.connect(
@@ -207,9 +210,6 @@ def init_connectors(self):
     self.x_comboBox.currentIndexChanged.connect(
         lambda: combobox_selections_visibility(self))
 
-    self.x_comboBox.currentIndexChanged.connect(
-        lambda: errormap.select_error_x(self, self.x_comboBox.currentText()))
-
     self.y_comboBox.currentIndexChanged.connect(
         lambda: errormap.select_error_y(self, self.y_comboBox.currentText()))
 
@@ -219,10 +219,14 @@ def init_connectors(self):
     view = self.y_comboBox.view()
     view.setRowHidden(0, True)
 
-    self.progressBar.hide()
-    self.cancel_button.hide()
+    # percentage error extra intra
 
-######################## TODO: add support for progress bar ########################
+    percentage_error_label = self.findChild(QLabel, "percentage_error_label")
+    
+    
+
+
+    #TODO: Add support for progress bar
     # self.progressBar = self.findChild(QProgressBar, "progressBar")
     # self.triggered.connect(
     #     lambda: progressBar_value(self))

@@ -25,8 +25,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("Curve Fitter")
 
         print_debug("Connectors Initialized")
-        self.x_type="No. Of Chunks"
-        self.y_type="Poly. Order"
+        self.x_type = "No. Of Chunks"
+        self.y_type = "Poly. Order"
         # initialize arrays and variables
         self.signal = Signal()
         self.signal_processor = SignalProcessor()

@@ -297,14 +297,18 @@ class SignalProcessor():
         else:
             return True
 
-    def percentage_error(self,signal1,signal2):
+    def percentage_error(self):
         # signal1 is the original
-        self.sub=np.subtract(signal1,signal2)
+        signal2 = self.interpolated_signal.magnitude
+        signal1 = self.original_signal.magnitude[0:len(signal2)]
 
-        signal1_minus_signal2=np.average(np.absolute(self.sub))
-        signal1_avg=np.average(signal1)
+        self.sub = np.subtract(signal1, signal2)
 
-        self.percentageoferror=np.absolute(signal1_minus_signal2 /signal1_avg)*100
+        signal1_minus_signal2 = np.average(np.absolute(self.sub))
+        signal1_avg = np.average(signal1)
+
+        self.percentageoferror = np.absolute(
+            signal1_minus_signal2 / signal1_avg)*100
         print(self.percentageoferror)
         return self.percentageoferror
 
@@ -324,30 +328,23 @@ def update_graph(self):
 
     update_latex(self)
 
+
 def update_latex(self):
     if self.signal_processor.interpolation_type == "spline":
-        latex(self, self.signal_processor.interpolated_signal.get_coefficients(self.polynomial_equation_spinBox.value()))
-        self.polynomial_equation_spinBox.setMaximum(self.chunk_number_spinBox.value() - 1)
+        latex(self, self.signal_processor.interpolated_signal.get_coefficients(
+            self.polynomial_equation_spinBox.value()))
+        self.polynomial_equation_spinBox.setMaximum(
+            self.chunk_number_spinBox.value() - 1)
 
     else:
         latex(self, self.signal_processor.interpolated_signal.coefficients)
+
 
 def create_latex_figure(self):
     self.fig = plt.figure()
     self.fig.patch.set_facecolor('None')
     self.Latex = Canvas(self.fig)
     self.latex_box.addWidget(self.Latex)
-
-
-
-
-
-
-
-
-              
-    
-  
 
 
 def latex(self, coef, fontsize=12):

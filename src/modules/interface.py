@@ -23,7 +23,7 @@ def update_interpolation(self):
 
     print_debug("Updating Interpolation")
 
-    if self.chunk_button.isChecked():
+    if self.polynomial_button.isChecked():
         order = int(self.polynomial_degree_spinBox.value())
         self.signal_processor.init_interpolation(
             type="polynomial", order=order)
@@ -70,25 +70,49 @@ def toggle_error_plot(self):
 
 
 def toggle_fit_mode(self, mode):
-    if mode == 'Chunk':
-        if self.spline_button.isChecked():
+    if mode == 'Polynomial':
+        if self.spline_button.isChecked() | self.rbf_button.isChecked():
             self.spline_button.setDown(False)
             self.spline_button.setChecked(False)
-            self.spline_options_widget.hide()
-            self.polynomial_equation_spinBox.hide()
+            self.rbf_button.setDown(False)
+            self.rbf_button.setChecked(False)
+            self.smoothing_options.hide()
+            self.rbf_options.hide()
+            self.chunks_options.show()
+            self.polynomial_options.show()
+            self.polynomial_degree_spinBox.setMaximum(9)
 
-        self.chunk_button.setDown(True)
-        self.chunk_button.setChecked(True)
+        self.polynomial_button.setDown(True)
+        self.polynomial_button.setChecked(True)
 
-    else:
-        if self.chunk_button.isChecked():
-            self.chunk_button.setDown(False)
-            self.chunk_button.setChecked(False)
-            self.spline_options_widget.show()
-            self.polynomial_equation_spinBox.show()
+    elif mode == 'Spline':
+        if self.polynomial_button.isChecked() | self.rbf_button.isChecked():
+            self.polynomial_button.setDown(False)
+            self.polynomial_button.setChecked(False)
+            self.rbf_button.setDown(False)
+            self.rbf_button.setChecked(False)
+            self.smoothing_options.show()
+            self.rbf_options.hide()
+            self.chunks_options.hide()
+            self.polynomial_options.show()
+            self.polynomial_degree_spinBox.setMaximum(5)
 
         self.spline_button.setDown(True)
         self.spline_button.setChecked(True)
+
+    else:
+        if self.polynomial_button.isChecked() | self.spline_button.isChecked():
+            self.polynomial_button.setDown(False)
+            self.polynomial_button.setChecked(False)
+            self.spline_button.setDown(False)
+            self.spline_button.setChecked(False)
+            self.smoothing_options.show()
+            self.rbf_options.show()
+            self.chunks_options.hide()
+            self.polynomial_options.hide()
+
+        self.rbf_button.setDown(True)
+        self.rbf_button.setChecked(True)
 
 # BUG: Threading causes crash
 
@@ -156,22 +180,25 @@ def combobox_selections_visibility(self):
 def init_connectors(self):
     # '''Initializes all event connectors and triggers'''
     
-    self.chunk_button = self.findChild(QToolButton, "chunk_button")
-    self.chunk_button.setCheckable(True)
-    self.chunk_button.setDown(True)
-    self.chunk_button.setChecked(True)
+    self.polynomial_button.setCheckable(True)
+    self.polynomial_button.setDown(True)
+    self.polynomial_button.setChecked(True)
     
     self.progressBar.hide()
     self.cancel_button.hide()
     
-    self.spline_options_widget.hide()
-    self.polynomial_equation_spinBox.hide()
-    self.chunk_button.clicked.connect(
-        lambda: toggle_fit_mode(self, 'Chunk'))
+    self.smoothing_options.hide()
+    self.rbf_options.hide()
+    self.polynomial_button.clicked.connect(
+        lambda: toggle_fit_mode(self, 'Polynomial'))
 
     self.spline_button.setCheckable(True)
     self.spline_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Spline'))
+
+    self.rbf_button.setCheckable(True)
+    self.rbf_button.clicked.connect(
+        lambda: toggle_fit_mode(self, 'RBF'))
 
     self.error_button.setCheckable(True)
     self.error_button.toggled.connect(

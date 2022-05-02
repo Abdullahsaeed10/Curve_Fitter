@@ -7,6 +7,7 @@ from scipy import interpolate as interp
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
+import more_itertools as mit
 
 plt.rc('mathtext', fontset='cm')
 
@@ -137,7 +138,7 @@ class ChunkedSignal(Signal):
 
         for index in range(0, len(self.chunk_array)):
             print_debug("Merging chunk " + str(index))
-            print_debug(self.chunk_array[index])
+            # print_debug(self.chunk_array[index])
             # for each chunk
 
             averaged_overlap = []
@@ -157,7 +158,7 @@ class ChunkedSignal(Signal):
             # append the left averaged overlap to actual chunk
 
             remaining_chunk = self.get_chunk_without_overlap(
-                index).magnitude[self.overlap_length:self.chunk_length]  # chunk starting after left overlap
+                index).magnitude[self.overlap_length:self.chunk_length-self.overlap_length]  # chunk starting after left overlap
             print_debug("Remaining chunk: " + str(remaining_chunk))
 
             overwritten_chunk = np.concatenate(
@@ -166,14 +167,16 @@ class ChunkedSignal(Signal):
             print_debug("Overwritten Chunk: " + str(overwritten_chunk))
             # add to main signal
 
-            appended_time = self.get_chunk_without_overlap(index).time
+            appended_time = np.array(
+                self.get_chunk_without_overlap(index).time)
 
+            # fixing length difference in time and magnitude arrays
             if len(appended_time) != len(overwritten_chunk):
-                difference = len(appended_time) - len(overwritten_chunk)
+                difference = len(overwritten_chunk)-len(appended_time)
                 print_debug("Target Length: " + str(len(appended_time)))
                 print_debug("Length before padding: " +
                             str(len(overwritten_chunk)))
-                overwritten_chunk.resize(len(appended_time))
+                appended_time.resize(len(overwritten_chunk))
                 print_debug("Length after padding: " +
                             str(len(overwritten_chunk)))
 
@@ -183,6 +186,7 @@ class ChunkedSignal(Signal):
         # Convert to 1D arrays
         self.time = np.concatenate(self.time)
         self.magnitude = np.concatenate(self.magnitude)
+        print_debug("magnitude length: " + str(len(self.magnitude)))
 
     def average_overlap(self, chunk_index):
         """Averages the overlap magnitude of two chunks"""
@@ -216,11 +220,12 @@ class ChunkedSignal(Signal):
 
         if direction == "left":
             print_debug("Getting left overlap")
-            return self.chunk_array[chunk_index][:overlap_length].magnitude
+            chunk = self.chunk_array[chunk_index][:overlap_length].magnitude
+            return chunk
         elif direction == "right":
             if chunk_index != len(self.chunk_array)-1:
                 print_debug("Getting right overlap")
-                return self.chunk_array[chunk_index][chunk_length:chunk_length+overlap_length].magnitude
+                return self.chunk_array[chunk_index][chunk_length-overlap_length:].magnitude
             else:
                 if overlap_length != 0:
                     overlap_length -= 1
@@ -232,6 +237,7 @@ class ChunkedSignal(Signal):
         """Returns the chunk at the given index"""
         return self.chunk_array[index]
 
+    #TODO: rename
     def get_chunk_without_overlap(self, index):
         """Returns the chunk signal object without overlap"""
         output = copy(self.chunk_array[index][:self.chunk_length])
@@ -258,12 +264,19 @@ class ChunkedSignal(Signal):
         chunk_length = self.chunk_length
         overlap_length = self.overlap_length
 
-        for index in range(0, len(self.magnitude), chunk_length):
-            chunk_array.append(Signal(self.magnitude[index:index+chunk_length + overlap_length],
-                                      self.fsample,
-                                      self.time[index:index +
-                                                chunk_length + overlap_length],
-                                      self.coefficients))
+        magnitude_chunks = list(mit.windowed(
+            seq=self.magnitude, n=chunk_length, step=(chunk_length-overlap_length), fillvalue=0))
+        time_chunks = list(mit.windowed(
+            seq=self.time, n=chunk_length, step=(chunk_length-overlap_length), fillvalue=0))
+
+        for index in range(len(magnitude_chunks)):
+            print_debug("Chunk " + str(index) + ": " +
+                        str(magnitude_chunks[index]))
+            print_debug("Time " + str(index) + ": " + str(time_chunks[index]))
+            chunk_array.append(Signal(magnitude=list(magnitude_chunks[index]),
+                                      fsample=self.fsample,
+                                      time=list(time_chunks[index]),
+                                      coef=self.coefficients))
 
         self.chunk_array = chunk_array
 
@@ -303,8 +316,7 @@ class SignalProcessor():
 
             self.interpolation_type = type
             self.interpolation_order = order
-            # TODO: Rename smmothing factor to smoothing interval later
-            self.smoothing_factor = smoothing_factor/100
+            self.smoothing_factor = 10 - (smoothing_factor/10)
         self.interpolate()
 
     def interpolate(self):
@@ -397,17 +409,16 @@ class SignalProcessor():
             return True
 
     def percentage_error(self):
-        # signal1 is the original
-        signal2 = self.interpolated_signal.magnitude
-        signal1 = self.original_signal.magnitude[0:len(signal2)]
+        interpolated = self.interpolated_signal.magnitude
+        original = self.original_signal.magnitude[0:len(interpolated)]
 
-        self.sub = np.subtract(signal1, signal2)
+        self.sub = np.subtract(original, interpolated)
 
-        signal1_minus_signal2 = np.average(np.absolute(self.sub))
-        signal1_avg = np.average(signal1)
+        original_minus_interpolated = np.average(np.absolute(self.sub))
+        original_avg = np.average(original)
 
         self.percentageoferror = np.absolute(
-            signal1_minus_signal2 / signal1_avg)*100
+            original_minus_interpolated / original_avg)*100
         return self.percentageoferror
 
 

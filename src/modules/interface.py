@@ -14,6 +14,8 @@ import time
 import threading
 import os
 
+rbf_combobox_function_arr = []
+
 
 def about_us(self):
     QMessageBox.about(
@@ -36,6 +38,9 @@ def update_interpolation(self):
             overlap_percent=overlap_percent)
 
     elif self.spline_button.isChecked():
+        # TODO: code repetition here
+        chunk_number = int(self.chunk_number_spinBox.value())
+        overlap_percent = int(self.overlap_spinBox.value())
         smoothing_factor = int(self.smoothing_spinBox.value())
         order = int(self.polynomial_degree_spinBox.value())
         self.signal_processor.init_interpolation(
@@ -44,6 +49,7 @@ def update_interpolation(self):
             order=order)
 
     elif self.rbf_button.isChecked():
+
         raise Exception("RBF interpolation not implemented yet")
 
     self.signal_processor.extrapolate()
@@ -89,6 +95,7 @@ def toggle_fit_mode(self, mode):
             self.rbf_options.hide()
             self.chunks_options.show()
             self.polynomial_options.show()
+            self.polynomial_degree_spinBox.setMinimum(0)
             self.polynomial_degree_spinBox.setMaximum(9)
 
         self.polynomial_button.setDown(True)
@@ -102,8 +109,9 @@ def toggle_fit_mode(self, mode):
             self.rbf_button.setChecked(False)
             self.smoothing_options.show()
             self.rbf_options.hide()
-            self.chunks_options.hide()
+            self.chunks_options.show()
             self.polynomial_options.show()
+            self.polynomial_degree_spinBox.setMinimum(1)
             self.polynomial_degree_spinBox.setMaximum(5)
 
         self.spline_button.setDown(True)

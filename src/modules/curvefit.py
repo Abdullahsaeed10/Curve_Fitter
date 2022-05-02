@@ -3,6 +3,7 @@ from modules.utility import print_debug
 import numpy as np
 from copy import copy
 import sympy
+from scipy import interpolate as interp
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
@@ -279,38 +280,50 @@ class SignalProcessor():
         self.interpolation_order = 0
         self.max_chunks = 1
         self.overlap_percent = 0
+        self.smoothing_factor = 0
 
         self.extrapolation_type = None
 
         self.interpolated_signal = copy(original)
         self.extrapolated_signal = copy(original)
 
-    def init_interpolation(self, type: str = None, order: int = 1, N_chunks: int = 1, overlap_percent: int = 0):
+    def init_interpolation(self, type: str = None, order: int = 1, N_chunks: int = 1, overlap_percent: int = 0, smoothing_factor=0):
         if type == None:
             raise Exception("Interpolation type must be set")
+        # TODO: Rethink updating to reduce code repetition
+        if type == "polynomial":
+            self.interpolation_type = type
+            self.interpolation_order = order
+            if len(self.original_signal) != 0:
+                self.max_chunks = N_chunks
+                if N_chunks > 1:
+                    self.overlap_percent = overlap_percent
+                    self.update_chunks(N_chunks, overlap_percent)
+        elif type == "spline":
 
-        self.interpolation_type = type
-        self.interpolation_order = order
-        if len(self.original_signal) != 0:
-            self.max_chunks = N_chunks
-            if N_chunks > 1:
-                self.overlap_percent = overlap_percent
-                self.update_chunks(N_chunks, overlap_percent)
-
+            self.interpolation_type = type
+            self.interpolation_order = order
+            # TODO: Rename smmothing factor to smoothing interval later
+            self.smoothing_factor = smoothing_factor/100
         self.interpolate()
 
     def interpolate(self):
         type = self.interpolation_type
         input = self.clipped_signal
 
-        if type == "polynomial":
-            coef = np.polyfit(input.time,
-                              input.magnitude,
-                              self.interpolation_order)
-            self.interpolated_signal = Signal(magnitude=np.polyval(
-                coef, input.time), fsample=input.fsample, coef=coef)
+        if type == "spline":
+            self.interpolated_signal = copy(self.clipped_signal)
 
-        elif type == "spline":
+            input = self.clipped_signal
+
+            spl = interp.UnivariateSpline(input.time,
+                                          input.magnitude,
+                                          k=self.interpolation_order,
+                                          s=self.smoothing_factor)
+
+            self.interpolated_signal.magnitude = spl(input.time)
+
+        elif type == "polynomial":
             self.clipped_signal = ChunkedSignal(
                 self.clipped_signal, self.max_chunks, self.overlap_percent)
             self.interpolated_signal = copy(self.clipped_signal)
@@ -334,12 +347,18 @@ class SignalProcessor():
 
         """Processing Here"""
         # fitting the clipped signal
-        if self.extrapolation_type == "polynomial":
-            coef = self.interpolated_signal.coefficients
-            self.extrapolated_values = np.polyval(
-                coef, self.original_signal.time[N_clipped:N_original])
+        if self.extrapolation_type == "spline":
+            spl = interp.UnivariateSpline(self.clipped_signal.time,
+                                          self.clipped_signal.magnitude,
+                                          k=self.interpolation_order,
+                                          s=self.smoothing_factor,
+                                          ext=0)
 
-        elif self.extrapolation_type == "spline":
+            # plot remaining time
+            self.extrapolated_values = spl(
+                self.original_signal.time[N_clipped:N_original])
+
+        elif self.extrapolation_type == "polynomial":
             # coefficients of last chunk
             coef = self.interpolated_signal.chunk_array[-1].coefficients
             self.extrapolated_values = np.polyval(
@@ -389,7 +408,6 @@ class SignalProcessor():
 
         self.percentageoferror = np.absolute(
             signal1_minus_signal2 / signal1_avg)*100
-        print(self.percentageoferror)
         return self.percentageoferror
 
 
@@ -402,7 +420,7 @@ def update_graph(self):
         draw = self.signal_processor.interpolated_signal
         self.curve_plot_interpolated.setData(draw.time, draw.magnitude)
 
-        if self.signal_processor.interpolation_type == "spline":
+        if self.signal_processor.interpolation_type == "polynomial":
             draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value(
             )]
             self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)
@@ -417,7 +435,7 @@ def update_graph(self):
 
 
 def update_latex(self):
-    if self.signal_processor.interpolation_type == "spline":
+    if self.signal_processor.interpolation_type == "polynomial":
         latex(self, self.signal_processor.interpolated_signal.get_coefficients(
             self.polynomial_equation_spinBox.value()))
         self.polynomial_equation_spinBox.setMaximum(

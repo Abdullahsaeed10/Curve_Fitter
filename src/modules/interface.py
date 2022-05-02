@@ -4,6 +4,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushButton, QSlider, QComboBox, QLCDNumber, QStackedWidget, QStackedLayout, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QDial, QLabel, QGridLayout, QToolButton
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
+from sympy import degree
 from modules import openfile
 from modules.curvefit import update_graph, update_latex
 from modules.utility import print_debug, print_log
@@ -25,20 +26,26 @@ def update_interpolation(self):
 
     if self.polynomial_button.isChecked():
         order = int(self.polynomial_degree_spinBox.value())
-        self.signal_processor.init_interpolation(
-            type="polynomial", order=order)
-
-    elif self.spline_button.isChecked():
-        order = int(self.polynomial_degree_spinBox.value())
         chunk_number = int(self.chunk_number_spinBox.value())
         overlap_percent = int(self.overlap_spinBox.value())
 
         self.signal_processor.init_interpolation(
-            type="spline",
+            type="polynomial",
             order=order,
             N_chunks=chunk_number,
             overlap_percent=overlap_percent)
-    
+
+    elif self.spline_button.isChecked():
+        smoothing_factor = int(self.smoothing_spinBox.value())
+        order = int(self.polynomial_degree_spinBox.value())
+        self.signal_processor.init_interpolation(
+            type="spline",
+            smoothing_factor=smoothing_factor,
+            order=order)
+
+    elif self.rbf_button.isChecked():
+        raise Exception("RBF interpolation not implemented yet")
+
     self.signal_processor.extrapolate()
     update_error_label(self)
     update_graph(self)
@@ -53,9 +60,11 @@ def update_clipping(self):
     update_interpolation(self)
     # update_extrapolation(self)
 
+
 def update_error_label(self):
     self.percentage_error_label.setNum(
         int(self.signal_processor.percentage_error()))
+
 
 def update_error(self):
     errormap.plot_error_map(self)
@@ -115,7 +124,6 @@ def toggle_fit_mode(self, mode):
         self.rbf_button.setChecked(True)
 
 # BUG: Threading causes crash
-
 
 
 def progressBar_update(self, x):
@@ -179,14 +187,14 @@ def combobox_selections_visibility(self):
 
 def init_connectors(self):
     # '''Initializes all event connectors and triggers'''
-    
+
     self.polynomial_button.setCheckable(True)
     self.polynomial_button.setDown(True)
     self.polynomial_button.setChecked(True)
-    
+
     self.progressBar.hide()
     self.cancel_button.hide()
-    
+
     self.smoothing_options.hide()
     self.rbf_options.hide()
     self.polynomial_button.clicked.connect(
@@ -210,6 +218,9 @@ def init_connectors(self):
         lambda: update_interpolation(self))
 
     self.overlap_spinBox.valueChanged.connect(
+        lambda: update_interpolation(self))
+
+    self.smoothing_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
 
     self.extrapolate_spinBox = self.findChild(
@@ -249,11 +260,8 @@ def init_connectors(self):
     # percentage error extra intra
 
     percentage_error_label = self.findChild(QLabel, "percentage_error_label")
-    
-    
 
-
-    #TODO: Add support for progress bar
+    # TODO: Add support for progress bar
     # self.progressBar = self.findChild(QProgressBar, "progressBar")
     # self.triggered.connect(
     #     lambda: progressBar_value(self))

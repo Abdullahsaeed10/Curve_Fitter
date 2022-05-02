@@ -280,7 +280,7 @@ QSpinBox::down-arrow {
 }</string>
                  </property>
                  <property name="maximum">
-                  <number>9</number>
+                  <number>10</number>
                  </property>
                 </widget>
                </item>
@@ -1103,7 +1103,7 @@ QSpinBox::down-arrow {
                    <number>0</number>
                   </property>
                   <property name="maximum">
-                   <number>10</number>
+                   <number>100</number>
                   </property>
                  </widget>
                 </item>

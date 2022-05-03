@@ -20,8 +20,9 @@ plt.rcParams["figure.autolayout"] = True
 
 def values(self):
     # whether what the user chose it will still be the same no. for both axes
+    # TODO: should be more flexible and dependent on parameter and interpolation type
     vals = []
-    for v in range(1, 20):
+    for v in range(1, 7):
         vals.append(v)
     return vals
 
@@ -102,9 +103,8 @@ def calculate_error(self, loading_counter: int = 0):
     # put in array
     # compare original and interpolated
     self.signal_processor_error = copy(self.signal_processor)
-    self.signal_processor_error.interpolation_type = "polynomial"
 
-    if (self.signal_processor_error.interpolation_type == ("spline" or "rbf")):
+    if (self.signal_processor_error.interpolation_type == ("rbf")):
         raise Exception("Interpolation type has no error map")
         return
 

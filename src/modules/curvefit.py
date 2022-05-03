@@ -288,40 +288,51 @@ class SignalProcessor():
         self.extrapolated_signal = copy(original)
 
     def init_interpolation(self, type: str = None, order: int = 1, N_chunks: int = 1, overlap_percent: int = 0, smoothing_factor=0):
+        self.interpolation_type = type
+        self.interpolation_order = order
         if type == None:
             raise Exception("Interpolation type must be set")
         # TODO: Rethink updating to reduce code repetition
-        if type == "polynomial":
-            self.interpolation_type = type
-            self.interpolation_order = order
+        if type == "polynomial" or "spline":
+            self.smoothing_factor = smoothing_factor/100
             if len(self.original_signal) != 0:
                 self.max_chunks = N_chunks
+                # Generates signal chunks
                 if N_chunks > 1:
                     self.overlap_percent = overlap_percent
                     self.update_chunks(N_chunks, overlap_percent)
-        elif type == "spline":
 
-            self.interpolation_type = type
-            self.interpolation_order = order
-            # TODO: Rename smmothing factor to smoothing interval later
-            self.smoothing_factor = smoothing_factor/100
         self.interpolate()
+    # TODO: CODE REPETITION :<
 
     def interpolate(self):
         type = self.interpolation_type
         input = self.clipped_signal
 
         if type == "spline":
+            # self.interpolated_signal = copy(self.clipped_signal)
+
+            # input = self.clipped_signal
+
+            # self.interpolated_signal.magnitude = spl(input.time)
+
+            self.clipped_signal = ChunkedSignal(
+                self.clipped_signal, self.max_chunks, self.overlap_percent)
+
             self.interpolated_signal = copy(self.clipped_signal)
 
-            input = self.clipped_signal
+            for chunk_index in range(len(self.clipped_signal.chunk_array)):
+                input = self.clipped_signal.get_chunk(chunk_index)
 
-            spl = interp.UnivariateSpline(input.time,
-                                          input.magnitude,
-                                          k=self.interpolation_order,
-                                          s=self.smoothing_factor)
+                spl = interp.UnivariateSpline(input.time,
+                                              input.magnitude,
+                                              k=self.interpolation_order,
+                                              s=self.smoothing_factor)
 
-            self.interpolated_signal.magnitude = spl(input.time)
+                magnitude = spl(input.time)
+
+                self.interpolated_signal.set_chunk(chunk_index, Signal(
+                    magnitude=magnitude, fsample=input.fsample,  time=input.time))
 
         elif type == "polynomial":
             self.clipped_signal = ChunkedSignal(
@@ -398,16 +409,16 @@ class SignalProcessor():
 
     def percentage_error(self):
         # signal1 is the original
-        signal2 = self.interpolated_signal.magnitude
-        signal1 = self.original_signal.magnitude[0:len(signal2)]
+        interpolated = self.interpolated_signal.magnitude
+        original = self.original_signal.magnitude[0:len(interpolated)]
 
-        self.sub = np.subtract(signal1, signal2)
+        self.sub = np.subtract(original, interpolated)
 
-        signal1_minus_signal2 = np.average(np.absolute(self.sub))
-        signal1_avg = np.average(signal1)
+        original_minus_interpolated = np.average(np.absolute(self.sub))
+        original_avg = np.average(original)
 
         self.percentageoferror = np.absolute(
-            signal1_minus_signal2 / signal1_avg)*100
+            original_minus_interpolated / original_avg)*100
         return self.percentageoferror
 
 
@@ -420,7 +431,7 @@ def update_graph(self):
         draw = self.signal_processor.interpolated_signal
         self.curve_plot_interpolated.setData(draw.time, draw.magnitude)
 
-        if self.signal_processor.interpolation_type == "polynomial":
+        if type(self.signal_processor.interpolated_signal) == ChunkedSignal:
             draw = self.signal_processor.interpolated_signal.chunk_array[self.polynomial_equation_spinBox.value(
             )]
             self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)

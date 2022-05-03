@@ -23,11 +23,11 @@ def about_us(self):
 def update_interpolation(self):
 
     print_debug("Updating Interpolation")
+    chunk_number = int(self.chunk_number_spinBox.value())
+    overlap_percent = int(self.overlap_spinBox.value())
 
     if self.polynomial_button.isChecked():
         order = int(self.polynomial_degree_spinBox.value())
-        chunk_number = int(self.chunk_number_spinBox.value())
-        overlap_percent = int(self.overlap_spinBox.value())
 
         self.signal_processor.init_interpolation(
             type="polynomial",
@@ -41,10 +41,19 @@ def update_interpolation(self):
         self.signal_processor.init_interpolation(
             type="spline",
             smoothing_factor=smoothing_factor,
-            order=order)
+            order=order,
+            N_chunks=chunk_number,
+            overlap_percent=overlap_percent)
 
     elif self.rbf_button.isChecked():
-        raise Exception("RBF interpolation not implemented yet")
+        smoothing_factor = int(self.smoothing_spinBox.value())
+        order = int(self.polynomial_degree_spinBox.value())
+        self.signal_processor.init_interpolation(
+            type="rbf",
+            smoothing_factor=smoothing_factor,
+            order=order,
+            N_chunks=chunk_number,
+            overlap_percent=overlap_percent)
 
     self.signal_processor.extrapolate()
     update_error_label(self)
@@ -102,7 +111,7 @@ def toggle_fit_mode(self, mode):
             self.rbf_button.setChecked(False)
             self.smoothing_options.show()
             self.rbf_options.hide()
-            self.chunks_options.hide()
+            self.chunks_options.show()
             self.polynomial_options.show()
             self.polynomial_degree_spinBox.setMaximum(5)
 
@@ -117,7 +126,7 @@ def toggle_fit_mode(self, mode):
             self.spline_button.setChecked(False)
             self.smoothing_options.show()
             self.rbf_options.show()
-            self.chunks_options.hide()
+            self.chunks_options.show()
             self.polynomial_options.hide()
 
         self.rbf_button.setDown(True)

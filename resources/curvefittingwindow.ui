@@ -955,7 +955,7 @@ QComboBox QAbstractItemView
                   </item>
                   <item>
                    <property name="text">
-                    <string>inverse</string>
+                    <string>quadric</string>
                    </property>
                   </item>
                   <item>
@@ -980,7 +980,7 @@ QComboBox QAbstractItemView
                   </item>
                   <item>
                    <property name="text">
-                    <string>thin_plate</string>
+                    <string>thin_plate_spline</string>
                    </property>
                   </item>
                  </widget>

@@ -132,6 +132,7 @@ def toggle_fit_mode(self, mode):
         self.rbf_button.setDown(True)
         self.rbf_button.setChecked(True)
 
+    update_interpolation(self)
 # BUG: Threading causes crash
 
 

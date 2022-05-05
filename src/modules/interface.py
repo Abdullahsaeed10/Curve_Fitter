@@ -246,7 +246,7 @@ def init_connectors(self):
     self.error_map_apply_button = self.findChild(
         QPushButton, "error_map_apply_button")
     self.error_map_apply_button.clicked.connect(
-        lambda: errormap.calculate_error(self))
+        lambda: errormap.error_map(self))
 
     self.cancel_button = self.findChild(QPushButton, "cancel_button")
     self.cancel_button.clicked.connect(

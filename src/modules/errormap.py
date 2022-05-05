@@ -90,7 +90,7 @@ def error_map(self):
     # start threads
     t1.start()
     # wait until threads finish their job
-    t1.join()
+    #t1.join()
 
 
 def calculate_error(self, loading_counter: int = 0):

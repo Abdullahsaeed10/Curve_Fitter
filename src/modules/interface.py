@@ -45,7 +45,7 @@ def update_interpolation(self):
             N_chunks=chunk_number,
             overlap_percent=overlap_percent)
 
-    elif self.rbf_button.isChecked():
+    elif self.hermite_button.isChecked():
         smoothing_factor = int(self.smoothing_spinBox.value())
         order = int(self.polynomial_degree_spinBox.value())
         self.signal_processor.init_interpolation(
@@ -89,13 +89,12 @@ def toggle_error_plot(self):
 
 def toggle_fit_mode(self, mode):
     if mode == 'Polynomial':
-        if self.spline_button.isChecked() | self.rbf_button.isChecked():
+        if self.spline_button.isChecked() | self.hermite_button.isChecked():
             self.spline_button.setDown(False)
             self.spline_button.setChecked(False)
-            self.rbf_button.setDown(False)
-            self.rbf_button.setChecked(False)
+            self.hermite_button.setDown(False)
+            self.hermite_button.setChecked(False)
             self.smoothing_options.hide()
-            self.rbf_options.hide()
             self.chunks_options.show()
             self.polynomial_options.show()
             self.polynomial_degree_spinBox.setMaximum(9)
@@ -105,13 +104,12 @@ def toggle_fit_mode(self, mode):
         self.polynomial_button.setChecked(True)
 
     elif mode == 'Spline':
-        if self.polynomial_button.isChecked() | self.rbf_button.isChecked():
+        if self.polynomial_button.isChecked() | self.hermite_button.isChecked():
             self.polynomial_button.setDown(False)
             self.polynomial_button.setChecked(False)
-            self.rbf_button.setDown(False)
-            self.rbf_button.setChecked(False)
+            self.hermite_button.setDown(False)
+            self.hermite_button.setChecked(False)
             self.smoothing_options.show()
-            self.rbf_options.hide()
             self.chunks_options.show()
             self.polynomial_options.show()
             self.polynomial_degree_spinBox.setMaximum(5)
@@ -127,15 +125,14 @@ def toggle_fit_mode(self, mode):
             self.spline_button.setDown(False)
             self.spline_button.setChecked(False)
             self.smoothing_options.hide()
-            self.rbf_options.hide()
             self.chunks_options.show()
             self.polynomial_options.hide()
             self.polynomial_degree_spinBox.setMaximum(3)
             self.polynomial_degree_spinBox.setValue(3)
             self.polynomial_degree_spinBox.setMinimum(3)
 
-        self.rbf_button.setDown(True)
-        self.rbf_button.setChecked(True)
+        self.hermite_button.setDown(True)
+        self.hermite_button.setChecked(True)
 
     update_interpolation(self)
 # BUG: Threading causes crash
@@ -211,7 +208,6 @@ def init_connectors(self):
     self.cancel_button.hide()
 
     self.smoothing_options.hide()
-    self.rbf_options.hide()
     self.polynomial_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Polynomial'))
 
@@ -219,8 +215,8 @@ def init_connectors(self):
     self.spline_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Spline'))
 
-    self.rbf_button.setCheckable(True)
-    self.rbf_button.clicked.connect(
+    self.hermite_button.setCheckable(True)
+    self.hermite_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'RBF'))
 
     self.error_button.setCheckable(True)

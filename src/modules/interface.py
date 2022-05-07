@@ -49,7 +49,7 @@ def update_interpolation(self):
         smoothing_factor = int(self.smoothing_spinBox.value())
         order = int(self.polynomial_degree_spinBox.value())
         self.signal_processor.init_interpolation(
-            type="rbf",
+            type="hermite",
             smoothing_factor=smoothing_factor,
             order=order,
             N_chunks=chunk_number,
@@ -99,6 +99,7 @@ def toggle_fit_mode(self, mode):
             self.chunks_options.show()
             self.polynomial_options.show()
             self.polynomial_degree_spinBox.setMaximum(9)
+            self.polynomial_degree_spinBox.setMinimum(0)
 
         self.polynomial_button.setDown(True)
         self.polynomial_button.setChecked(True)
@@ -114,6 +115,7 @@ def toggle_fit_mode(self, mode):
             self.chunks_options.show()
             self.polynomial_options.show()
             self.polynomial_degree_spinBox.setMaximum(5)
+            self.polynomial_degree_spinBox.setMinimum(1)
 
         self.spline_button.setDown(True)
         self.spline_button.setChecked(True)
@@ -124,10 +126,13 @@ def toggle_fit_mode(self, mode):
             self.polynomial_button.setChecked(False)
             self.spline_button.setDown(False)
             self.spline_button.setChecked(False)
-            self.smoothing_options.show()
-            self.rbf_options.show()
+            self.smoothing_options.hide()
+            self.rbf_options.hide()
             self.chunks_options.show()
             self.polynomial_options.hide()
+            self.polynomial_degree_spinBox.setMaximum(3)
+            self.polynomial_degree_spinBox.setValue(3)
+            self.polynomial_degree_spinBox.setMinimum(3)
 
         self.rbf_button.setDown(True)
         self.rbf_button.setChecked(True)

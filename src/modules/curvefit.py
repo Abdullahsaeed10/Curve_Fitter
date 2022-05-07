@@ -81,6 +81,10 @@ class SignalProcessor():
                                              kernel=self.kernel, degree=self.interpolation_order,
                                              smoothing=self.smoothing_factor)
                 magnitude = rbf(input.time)
+            elif type == "hermite":
+                hermite = interp.PchipInterpolator(
+                    input.time, input.magnitude, axis=0)
+                magnitude = hermite(input.time)
             else:
                 raise Exception(
                     "Interpolation type must be polynomial , spline or rbf")
@@ -98,7 +102,7 @@ class SignalProcessor():
 
         """Processing Here"""
         # fitting the clipped signal
-        if self.extrapolation_type in ["spline", "rbf"]:
+        if self.extrapolation_type == "spline":
             spl = interp.UnivariateSpline(self.clipped_signal.time,
                                           self.clipped_signal.magnitude,
                                           k=self.interpolation_order,
@@ -114,7 +118,14 @@ class SignalProcessor():
             coef = self.interpolated_signal.chunk_array[-1].coefficients
             self.extrapolated_values = np.polyval(
                 coef, self.original_signal.time[N_clipped:N_original])
-            pass
+
+        elif self.extrapolation_type == "hermite":
+            input = self.interpolated_signal.chunk_array[-1]
+            hermite = interp.PchipInterpolator(input.time,
+                                               input.magnitude,
+                                               extrapolate=True)
+            self.extrapolated_values = hermite(
+                self.original_signal.time[N_clipped:N_original])
 
         """Output signal here"""
         self.extrapolated_signal = Signal(

@@ -4,6 +4,7 @@ import sympy
 from scipy import interpolate as interp
 from modules.utility import print_debug, print_log
 
+
 class Signal():
     """Represents a signal"""
 
@@ -114,7 +115,9 @@ class ChunkedSignal(Signal):
             # self.generate_chunks()
 
     def update_chunk_size(self, max_chunks):
-        self.chunk_length = int(len(self.magnitude)/max_chunks)
+        if max_chunks == 0:
+            max_chunks = 1
+        self.chunk_length = round(len(self.magnitude)/max_chunks)
         print_debug("Chunk length: " + str(self.chunk_length))
         print_debug("Overlap percent: " + str(self.overlap_percent))
         self.overlap_length = int(np.ceil(

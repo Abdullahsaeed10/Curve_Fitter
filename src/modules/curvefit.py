@@ -72,15 +72,9 @@ class SignalProcessor():
                 spl = interp.UnivariateSpline(input.time,
                                               input.magnitude,
                                               k=self.interpolation_order,
-                                              s=self.smoothing_factor)
+                                              s=self.smoothing_factor, check_finite=False)
                 magnitude = spl(input.time)
 
-            elif type == "rbf":
-                rbf = interp.RBFInterpolator(input.time,
-                                             input.magnitude,
-                                             kernel=self.kernel, degree=self.interpolation_order,
-                                             smoothing=self.smoothing_factor)
-                magnitude = rbf(input.time)
             elif type == "hermite":
                 hermite = interp.PchipInterpolator(
                     input.time, input.magnitude, axis=0)

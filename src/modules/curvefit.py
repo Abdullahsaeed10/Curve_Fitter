@@ -74,6 +74,7 @@ class SignalProcessor():
                                               k=self.interpolation_order,
                                               s=self.smoothing_factor, check_finite=False)
                 magnitude = spl(input.time)
+                coef = spl.get_coeffs()
 
             elif type == "hermite":
                 hermite = interp.PchipInterpolator(
@@ -191,7 +192,7 @@ def update_graph(self):
 
 
 def update_latex(self):
-    if self.signal_processor.interpolation_type == "polynomial":
+    if self.signal_processor.interpolation_type != "hermite":
         latex(self, self.signal_processor.interpolated_signal.get_coefficients(
             self.polynomial_equation_spinBox.value()))
         self.polynomial_equation_spinBox.setMaximum(
@@ -201,7 +202,8 @@ def update_latex(self):
         self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)
 
     else:
-        latex(self, self.signal_processor.interpolated_signal.coefficients)
+        latex(self, self.signal_processor.interpolated_signal.coefficients, hermite = True)
+        self.curve_plot_selected_chunk.clear()
 
 
 def create_latex_figure(self):
@@ -211,12 +213,16 @@ def create_latex_figure(self):
     self.latex_box.addWidget(self.Latex)
 
 
-def latex(self, coef, fontsize=12):
+def latex(self, coef, fontsize=12, hermite = False):
     self.fig.clear()
-    polynomial = np.poly1d(coef)
-    x = sympy.symbols('x')
-    formula = sympy.printing.latex(sympy.Poly(
-        polynomial.coef.round(2), x).as_expr())
-    self.fig.text(0, 0.1, '${}$'.format(formula),
+    if hermite == True:
+        self.fig.text(0, 0.1, r"${\mathrm{N/A}}$",
                   fontsize=fontsize, color='white')
+    else:
+        polynomial = np.poly1d(coef)
+        x = sympy.symbols('x')
+        formula = sympy.printing.latex(sympy.Poly(
+            polynomial.coef.round(2), x).as_expr())
+        self.fig.text(0, 0.1, '${}$'.format(formula),
+                      fontsize=fontsize, color='white')
     self.fig.canvas.draw()

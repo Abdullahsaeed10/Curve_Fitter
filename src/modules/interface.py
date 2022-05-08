@@ -72,7 +72,7 @@ def update_clipping(self):
 
 def update_error_label(self):
     self.percentage_error_label.setNum(
-        int(self.signal_processor.percentage_error()))
+        (self.signal_processor.percentage_error()))
 
 
 def update_error(self):

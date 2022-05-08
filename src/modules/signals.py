@@ -141,7 +141,7 @@ class ChunkedSignal(Signal):
             remaining_chunk = []
 
             # average the chunk+overlap and add to main signal
-            if index == len(self.chunk_array) - 1:
+            if index == len(self.chunk_array):
                 averaged_overlap = []  # last chunk cornercase
             elif index == 0:
                 averaged_overlap = self.get_overlap_magnitudes(

@@ -28,8 +28,6 @@ def values(self, type):
         vals = np.arange(1, 6)
     elif type == "% Overlap":
         vals = np.arange(0, 13)
-
-    print(vals)
     return vals
 
 
@@ -127,10 +125,10 @@ def calculate_error(self, loading_counter: int = 0):
     y = self.y_values
 
     self.percentage_error = []
-    for i in x:
+    for j in y:
         # to iterate on the y ranges
         self.percentage_error_temp = []
-        for j in y:
+        for i in x:
             # intrapolate according to the 2 numbers and add to the matrix
 
             # order,chunks,overlap
@@ -144,7 +142,6 @@ def calculate_error(self, loading_counter: int = 0):
             print_debug("Error Calculated: " + "x =" + str(i) + " y=" + str(j))
         self.percentage_error.append(self.percentage_error_temp)
 
-    # percentage_error_function(self)
     interface.progressBar_update(self, 2)
     if self.toggle_progressBar == 1:
         return

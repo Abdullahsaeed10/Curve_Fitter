@@ -258,7 +258,7 @@ class ChunkedSignal(Signal):
             chunk_array.append(Signal(self.magnitude[index:index+chunk_length + overlap_length],
                                       self.fsample,
                                       self.time[index:index +
-                                                chunk_length + overlap_length],
+                                    chunk_length + overlap_length],
                                       self.coefficients))
 
         self.chunk_array = chunk_array

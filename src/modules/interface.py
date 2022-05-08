@@ -4,6 +4,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushButton, QSlider, QComboBox, QLCDNumber, QStackedWidget, QStackedLayout, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QDial, QLabel, QGridLayout, QToolButton
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
+from sympy import degree
 from modules import openfile
 from modules.curvefit import update_graph, update_latex
 from modules.utility import print_debug, print_log
@@ -22,23 +23,38 @@ def about_us(self):
 def update_interpolation(self):
 
     print_debug("Updating Interpolation")
+    chunk_number = int(self.chunk_number_spinBox.value())
+    overlap_percent = int(self.overlap_spinBox.value())
 
-    if self.chunk_button.isChecked():
+    if self.polynomial_button.isChecked():
         order = int(self.polynomial_degree_spinBox.value())
-        self.signal_processor.init_interpolation(
-            type="polynomial", order=order)
-
-    elif self.spline_button.isChecked():
-        order = int(self.polynomial_degree_spinBox.value())
-        chunk_number = int(self.chunk_number_spinBox.value())
-        overlap_percent = int(self.overlap_spinBox.value())
 
         self.signal_processor.init_interpolation(
-            type="spline",
+            type="polynomial",
             order=order,
             N_chunks=chunk_number,
             overlap_percent=overlap_percent)
-    
+
+    elif self.spline_button.isChecked():
+        smoothing_factor = int(self.smoothing_spinBox.value())
+        order = int(self.polynomial_degree_spinBox.value())
+        self.signal_processor.init_interpolation(
+            type="spline",
+            smoothing_factor=smoothing_factor,
+            order=order,
+            N_chunks=chunk_number,
+            overlap_percent=overlap_percent)
+
+    elif self.hermite_button.isChecked():
+        smoothing_factor = int(self.smoothing_spinBox.value())
+        order = int(self.polynomial_degree_spinBox.value())
+        self.signal_processor.init_interpolation(
+            type="hermite",
+            smoothing_factor=smoothing_factor,
+            order=order,
+            N_chunks=chunk_number,
+            overlap_percent=overlap_percent)
+
     self.signal_processor.extrapolate()
     update_error_label(self)
     update_graph(self)
@@ -53,9 +69,11 @@ def update_clipping(self):
     update_interpolation(self)
     # update_extrapolation(self)
 
+
 def update_error_label(self):
     self.percentage_error_label.setNum(
-        int(self.signal_processor.percentage_error()))
+        (self.signal_processor.percentage_error()))
+
 
 def update_error(self):
     errormap.plot_error_map(self)
@@ -70,28 +88,54 @@ def toggle_error_plot(self):
 
 
 def toggle_fit_mode(self, mode):
-    if mode == 'Chunk':
-        if self.spline_button.isChecked():
+    if mode == 'Polynomial':
+        if self.spline_button.isChecked() | self.hermite_button.isChecked():
             self.spline_button.setDown(False)
             self.spline_button.setChecked(False)
-            self.spline_options_widget.hide()
-            self.polynomial_equation_spinBox.hide()
+            self.hermite_button.setDown(False)
+            self.hermite_button.setChecked(False)
+            self.smoothing_options.hide()
+            self.chunks_options.show()
+            self.polynomial_options.show()
+            self.polynomial_degree_spinBox.setMaximum(9)
+            self.polynomial_degree_spinBox.setMinimum(0)
 
-        self.chunk_button.setDown(True)
-        self.chunk_button.setChecked(True)
+        self.polynomial_button.setDown(True)
+        self.polynomial_button.setChecked(True)
 
-    else:
-        if self.chunk_button.isChecked():
-            self.chunk_button.setDown(False)
-            self.chunk_button.setChecked(False)
-            self.spline_options_widget.show()
-            self.polynomial_equation_spinBox.show()
+    elif mode == 'Spline':
+        if self.polynomial_button.isChecked() | self.hermite_button.isChecked():
+            self.polynomial_button.setDown(False)
+            self.polynomial_button.setChecked(False)
+            self.hermite_button.setDown(False)
+            self.hermite_button.setChecked(False)
+            self.smoothing_options.show()
+            self.chunks_options.show()
+            self.polynomial_options.show()
+            self.polynomial_degree_spinBox.setMaximum(5)
+            self.polynomial_degree_spinBox.setMinimum(1)
 
         self.spline_button.setDown(True)
         self.spline_button.setChecked(True)
 
-# BUG: Threading causes crash
+    else:
+        if self.polynomial_button.isChecked() | self.spline_button.isChecked():
+            self.polynomial_button.setDown(False)
+            self.polynomial_button.setChecked(False)
+            self.spline_button.setDown(False)
+            self.spline_button.setChecked(False)
+            self.smoothing_options.hide()
+            self.chunks_options.show()
+            self.polynomial_options.hide()
+            self.polynomial_degree_spinBox.setMaximum(3)
+            self.polynomial_degree_spinBox.setValue(3)
+            self.polynomial_degree_spinBox.setMinimum(3)
 
+        self.hermite_button.setDown(True)
+        self.hermite_button.setChecked(True)
+
+    update_interpolation(self)
+# BUG: Threading causes crash
 
 
 def progressBar_update(self, x):
@@ -155,23 +199,25 @@ def combobox_selections_visibility(self):
 
 def init_connectors(self):
     # '''Initializes all event connectors and triggers'''
-    
-    self.chunk_button = self.findChild(QToolButton, "chunk_button")
-    self.chunk_button.setCheckable(True)
-    self.chunk_button.setDown(True)
-    self.chunk_button.setChecked(True)
-    
+
+    self.polynomial_button.setCheckable(True)
+    self.polynomial_button.setDown(True)
+    self.polynomial_button.setChecked(True)
+
     self.progressBar.hide()
     self.cancel_button.hide()
-    
-    self.spline_options_widget.hide()
-    self.polynomial_equation_spinBox.hide()
-    self.chunk_button.clicked.connect(
-        lambda: toggle_fit_mode(self, 'Chunk'))
+
+    self.smoothing_options.hide()
+    self.polynomial_button.clicked.connect(
+        lambda: toggle_fit_mode(self, 'Polynomial'))
 
     self.spline_button.setCheckable(True)
     self.spline_button.clicked.connect(
         lambda: toggle_fit_mode(self, 'Spline'))
+
+    self.hermite_button.setCheckable(True)
+    self.hermite_button.clicked.connect(
+        lambda: toggle_fit_mode(self, 'RBF'))
 
     self.error_button.setCheckable(True)
     self.error_button.toggled.connect(
@@ -183,6 +229,9 @@ def init_connectors(self):
         lambda: update_interpolation(self))
 
     self.overlap_spinBox.valueChanged.connect(
+        lambda: update_interpolation(self))
+
+    self.smoothing_spinBox.valueChanged.connect(
         lambda: update_interpolation(self))
 
     self.extrapolate_spinBox = self.findChild(
@@ -198,7 +247,7 @@ def init_connectors(self):
     self.error_map_apply_button = self.findChild(
         QPushButton, "error_map_apply_button")
     self.error_map_apply_button.clicked.connect(
-        lambda: errormap.calculate_error(self))
+        lambda: errormap.error_map(self))
 
     self.cancel_button = self.findChild(QPushButton, "cancel_button")
     self.cancel_button.clicked.connect(
@@ -222,11 +271,8 @@ def init_connectors(self):
     # percentage error extra intra
 
     percentage_error_label = self.findChild(QLabel, "percentage_error_label")
-    
-    
 
-
-    #TODO: Add support for progress bar
+    # TODO: Add support for progress bar
     # self.progressBar = self.findChild(QProgressBar, "progressBar")
     # self.triggered.connect(
     #     lambda: progressBar_value(self))

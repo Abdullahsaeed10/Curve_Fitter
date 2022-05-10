@@ -4,6 +4,7 @@ import threading
 from modules.utility import print_debug
 from modules import interface
 from copy import copy
+from PyQt5 import QtWidgets
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 import numpy as np
@@ -89,16 +90,20 @@ def type_selection(self, x_type, y_type, i, j):
 
 
 def error_map(self):
-    print_debug("error map assigned to thread: {}".format(
-        threading.current_thread().name))
-    lock = Lock()
+    if(len(self.signal_processor.original_signal)==0):
+        QtWidgets.QMessageBox.warning(
+            self, 'NO SIGNAL ', 'You have to enter a signal first')
+    else:
+        print_debug("error map assigned to thread: {}".format(
+            threading.current_thread().name))
+        lock = Lock()
 
-    t1 = Thread(target=calculate_error, args=(
-        self,), name='error map thread')
-    # start threads
-    t1.start()
-    # wait until threads finish their job
-    # t1.join()
+        t1 = Thread(target=calculate_error, args=(
+            self,), name='error map thread')
+        # start threads
+        t1.start()
+        # wait until threads finish their job
+        # t1.join()
 
 
 def calculate_error(self, loading_counter: int = 0):

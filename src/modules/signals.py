@@ -124,6 +124,22 @@ class ChunkedSignal(Signal):
             self.chunk_length * (self.overlap_percent/100)))  # TODO: FIX THIS
         self.generate_chunks()
 
+    def generate_chunks(self):
+        """Generates signal objects for each chunk + overlap"""
+
+        # generate chunks
+        chunk_array = []
+        chunk_length = self.chunk_length
+        overlap_length = self.overlap_length
+
+        for index in range(0, len(self.magnitude), chunk_length):
+            chunk_array.append(Signal(self.magnitude[index:index+chunk_length + overlap_length],
+                                      self.fsample,
+                                      self.time[index:index +
+                                    chunk_length + overlap_length],
+                                      self.coefficients))
+
+        self.chunk_array = chunk_array
     def merge_chunks(self):
         """Merges chunks into the main signal superclass"""
 
@@ -246,19 +262,3 @@ class ChunkedSignal(Signal):
         # call update merged chunks
         self.merge_chunks()
 
-    def generate_chunks(self):
-        """Generates signal objects for each chunk + overlap"""
-
-        # generate chunks
-        chunk_array = []
-        chunk_length = self.chunk_length
-        overlap_length = self.overlap_length
-
-        for index in range(0, len(self.magnitude), chunk_length):
-            chunk_array.append(Signal(self.magnitude[index:index+chunk_length + overlap_length],
-                                      self.fsample,
-                                      self.time[index:index +
-                                    chunk_length + overlap_length],
-                                      self.coefficients))
-
-        self.chunk_array = chunk_array

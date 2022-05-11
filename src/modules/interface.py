@@ -17,7 +17,7 @@ import os
 
 def about_us(self):
     QMessageBox.about(
-        self, ' About ', 'This is a curve filter \nCreated by junior students from the faculty of Engineering, Cairo University, Systems and Biomedical Engineering department \n \nTeam members: \n-Mohammed Nasser \n-Abdullah Saeed \n-Zeyad Mansour \n-Mariam Khaled \n \nhttps://github.com/mo-gaafar/Curve_Fitter.git')
+        self, ' About ', 'This is a curve fitter \nCreated by junior students from the faculty of Engineering, Cairo University, Systems and Biomedical Engineering department \n \nTeam members: \n-Mohammed Nasser \n-Abdullah Saeed \n-Zeyad Mansour \n-Mariam Khaled \n \nhttps://github.com/mo-gaafar/Curve_Fitter.git')
 
 
 def update_interpolation(self):

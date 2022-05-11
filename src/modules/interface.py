@@ -138,21 +138,24 @@ def toggle_fit_mode(self, mode):
 # BUG: Threading causes crash
 
 
-def progressBar_update(self, x):
+def progressBar_update(self, x, y):
     self.cancel_button.show()
     self.progressBar.show()
 
     if x == 1:
-        for i in range(50):
-            time.sleep(0.01)
+        for i in range(20):
+            #time.sleep(1)
             self.progressBar.setValue(i+1)
         return self.progressBar.value()
     elif x == 2:
-        for i in range(50, 80):
+        #for i in range(20, 100):
 
-            time.sleep(0.01)
-            self.progressBar.setValue(i+1)
-        return self.progressBar.value()
+            #time.sleep(1)
+            self.progressBar.setValue(y+1)
+            if (y==100):  
+                self.progressBar.hide()
+                self.cancel_button.hide()
+            return 
     elif x == 3:
         for i in range(80, 100):
 

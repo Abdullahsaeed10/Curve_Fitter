@@ -202,7 +202,7 @@ def update_latex(self):
         self.curve_plot_selected_chunk.setData(draw.time, draw.magnitude)
 
     else:
-        latex(self, self.signal_processor.interpolated_signal.coefficients, hermite = True)
+        latex(self, self.signal_processor.interpolated_signal.coefficients, hermite=True)
         self.curve_plot_selected_chunk.clear()
 
 
@@ -213,11 +213,11 @@ def create_latex_figure(self):
     self.latex_box.addWidget(self.Latex)
 
 
-def latex(self, coef, fontsize=12, hermite = False):
+def latex(self, coef, fontsize=12, hermite=False):
     self.fig.clear()
     if hermite == True:
-        self.fig.text(0, 0.1, r"${\mathrm{N/A}}$",
-                  fontsize=fontsize, color='white')
+        self.fig.text(0, 0.1, r"${  {p}}(x)=h_{00}(t){  {p}}_{k}+h_{10}(t)(x_{k+1}-x_{k}){  {m}}_{k}+h_{01}(t){  {p}}_{k+1}+h_{11}(t)(x_{k+1}-x_{k}){  {m}}_{k+1},}{\displaystyle {  {p}}(x)=h_{00}(t){  {p}}_{k}+h_{10}(t)(x_{k+1}-x_{k}){  {m}}_{k}+h_{01}(t){  {p}}_{k+1}+h_{11}(t)(x_{k+1}-x_{k}){  {m}}_{k+1},}$",
+                      fontsize=fontsize, color='white')
     else:
         polynomial = np.poly1d(coef)
         x = sympy.symbols('x')

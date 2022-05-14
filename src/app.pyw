@@ -13,6 +13,9 @@ import sys
 
 class MainWindow(QtWidgets.QMainWindow):
     ''' This is the PyQt5 GUI Main Window'''
+    progressChanged = QtCore.pyqtSignal(int)
+    endLoading = QtCore.pyqtSignal()
+    startLoading = QtCore.pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         ''' Main window constructor'''

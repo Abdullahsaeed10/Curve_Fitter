@@ -139,28 +139,35 @@ def toggle_fit_mode(self, mode):
 
 
 def progressBar_update(self, x):
-    self.cancel_button.show()
-    self.progressBar.show()
-
+    self.startLoading.emit()
     if x == 1:
         for i in range(50):
             time.sleep(0.01)
-            self.progressBar.setValue(i+1)
-        return self.progressBar.value()
+            # self.progressBar.setValue(i+1)
+            self.progressChanged.emit(i+1)
+        return
     elif x == 2:
         for i in range(50, 80):
 
             time.sleep(0.01)
-            self.progressBar.setValue(i+1)
-        return self.progressBar.value()
+            # self.progressBar.setValue(i+1)
+            self.progressChanged.emit(i+1)
+        return
     elif x == 3:
         for i in range(80, 100):
 
             time.sleep(0.1)
-            self.progressBar.setValue(i+1)
-        self.progressBar.hide()
-        self.cancel_button.hide()
-        return self.progressBar.value()
+            # self.progressBar.setValue(i+1)
+            self.progressChanged.emit(i+1)
+        # self.progressBar.hide()
+        # self.cancel_button.hide()
+        self.endLoading.emit()  # connects to stop_progressBar
+        return
+
+
+def start_progressBar(self):
+    self.cancel_button.show()
+    self.progressBar.show()
 
 
 def stop_progressBar(self):
@@ -203,6 +210,11 @@ def init_connectors(self):
     self.polynomial_button.setCheckable(True)
     self.polynomial_button.setDown(True)
     self.polynomial_button.setChecked(True)
+
+    # this is a signal that is emitted by the thread
+    self.progressChanged.connect(self.progressBar.setValue)
+    self.endLoading.connect(lambda: stop_progressBar(self))
+    self.startLoading.connect(lambda: start_progressBar(self))
 
     self.progressBar.hide()
     self.cancel_button.hide()

@@ -138,59 +138,69 @@ def toggle_fit_mode(self, mode):
 # BUG: Threading causes crash
 
 
-def progressBar_update(self, x, y):
-    self.cancel_button.show()
-    self.progressBar.show()
+# def progressBar_update(self, x, y):
+#     self.cancel_button.show()
+#     self.progressBar.show()
 
-    if x == 1:
-        for i in range(20):
-            #time.sleep(1)
-            self.progressBar.setValue(i+1)
-        return self.progressBar.value()
-    elif x == 2:
-        #for i in range(20, 100):
+#     if x == 1:
+#         for i in range(20):
+#             #time.sleep(1)
+#             self.progressBar.setValue(i+1)
+#         return self.progressBar.value()
+#     elif x == 2:
+#         #for i in range(20, 100):
 
-            #time.sleep(1)
-            self.progressBar.setValue(y+1)
-            if (y==100):  
-                self.progressBar.hide()
-                self.cancel_button.hide()
-            return 
-    elif x == 3:
-        for i in range(80, 100):
+#             #time.sleep(1)
+#             self.progressBar.setValue(y+1)
+#             if (y==100):  
+#                 self.progressBar.hide()
+#                 self.cancel_button.hide()
+#             return 
+#     elif x == 3:
+#         for i in range(80, 100):
 
-            time.sleep(0.1)
-            self.progressBar.setValue(i+1)
-        self.progressBar.hide()
-        self.cancel_button.hide()
-        return self.progressBar.value()
+#             time.sleep(0.1)
+#             self.progressBar.setValue(i+1)
+#         self.progressBar.hide()
+#         self.cancel_button.hide()
+#         return self.progressBar.value()
 
-
-def progressBar_update(self, x):
+def progressBar_update(self, barpercent):
     self.startLoading.emit()
-    if x == 1:
-        for i in range(50):
-            time.sleep(0.01)
-            # self.progressBar.setValue(i+1)
-            self.progressChanged.emit(i+1)
+    print_debug("Progress bar update: " + str(barpercent))
+    for self.current_progressBar  in range(barpercent):
+        self.progressChanged.emit(self.current_progressBar+1)
+        self.current_progressBar += 1
+    if (barpercent==100):
+        print_debug("the barpercent has reached 100 and enter the endLoading")
+        self.endLoading.emit()
         return
-    elif x == 2:
-        for i in range(50, 80):
+    return self.current_progressBar
+# def progressBar_update(self, x):
+#     self.startLoading.emit()
+#     if x == 1:
+#         for i in range(50):
+#             time.sleep(0.01)
+#             # self.progressBar.setValue(i+1)
+#             self.progressChanged.emit(i+1)
+#         return
+#     elif x == 2:
+#         for i in range(50, 80):
 
-            time.sleep(0.01)
-            # self.progressBar.setValue(i+1)
-            self.progressChanged.emit(i+1)
-        return
-    elif x == 3:
-        for i in range(80, 100):
+#             time.sleep(0.01)
+#             # self.progressBar.setValue(i+1)
+#             self.progressChanged.emit(i+1)
+#         return
+#     elif x == 3:
+#         for i in range(80, 100):
 
-            time.sleep(0.1)
-            # self.progressBar.setValue(i+1)
-            self.progressChanged.emit(i+1)
-        # self.progressBar.hide()
-        # self.cancel_button.hide()
-        self.endLoading.emit()  # connects to stop_progressBar
-        return
+#             time.sleep(0.1)
+#             # self.progressBar.setValue(i+1)
+#             self.progressChanged.emit(i+1)
+#         # self.progressBar.hide()
+#         # self.cancel_button.hide()
+#         self.endLoading.emit()  # connects to stop_progressBar
+#         return
 
 
 def start_progressBar(self):

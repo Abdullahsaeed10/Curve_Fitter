@@ -117,7 +117,7 @@ def calculate_error(self, loading_counter: int = 0):
     # compare original and interpolated
     self.signal_processor_error = copy(self.signal_processor)
 
-    interface.progressBar_update(self, 1)
+    #interface.progressBar_update(self, 1)
 
     self.x_values = values(self, self.x_type)
 
@@ -128,14 +128,18 @@ def calculate_error(self, loading_counter: int = 0):
 
     x = self.x_values
     y = self.y_values
-
+    barPercent_const= round(100/len(y))
+    barPercent= barPercent_const
+    print_debug("before loop ")
+    print_debug(barPercent)
+    print_debug(barPercent_const)
     self.percentage_error = []
     for j in y:
         # to iterate on the y ranges
         print_debug('percent *************    yyy')
         print_debug(len(y))
         print_debug(barPercent)
-        interface.progressBar_update(self, 2,barPercent)
+        interface.progressBar_update(self,barPercent)
         barPercent= barPercent + barPercent_const 
         self.percentage_error_temp = []
         for i in x:
@@ -152,13 +156,13 @@ def calculate_error(self, loading_counter: int = 0):
             print_debug("Error Calculated: " + "x =" + str(i) + " y=" + str(j))
         self.percentage_error.append(self.percentage_error_temp)
 
-    interface.progressBar_update(self, 2)
+   # interface.progressBar_update(self, 2)
     if self.toggle_progressBar == 1:
         return
 
     normalization(self)
 
-    interface.progressBar_update(self, 3)
+    #interface.progressBar_update(self, 3)
     if self.toggle_progressBar == 1:
         return
     plot_error_map(self, self.normalized_error, self.x_type, self.y_type)

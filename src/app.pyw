@@ -33,6 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.signal_processor = SignalProcessor()
         self.hidden_row = 0
         self.toggle_progressBar = 0
+        self.current_progressBar = 0
 
         self.x_type = "No. Of Chunks"
         self.y_type = "Poly. Order"

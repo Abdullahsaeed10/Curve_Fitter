@@ -1,4 +1,5 @@
 
+from math import ceil
 from threading import Thread, Lock
 import threading
 from modules.utility import print_debug
@@ -128,7 +129,7 @@ def calculate_error(self, loading_counter: int = 0):
 
     x = self.x_values
     y = self.y_values
-    barPercent_const= round(100/len(y))
+    barPercent_const= ceil(100/len(y))
     barPercent= barPercent_const
     print_debug("before loop ")
     print_debug(barPercent)
@@ -142,7 +143,14 @@ def calculate_error(self, loading_counter: int = 0):
         interface.progressBar_update(self,barPercent)
         barPercent= barPercent + barPercent_const 
         self.percentage_error_temp = []
+        if self.toggle_progressBar == 1:
+            print_debug("in the loop returned")
+            return
         for i in x:
+            
+            if self.toggle_progressBar == 1:
+                print_debug("in the loop returned")
+                return
             # intrapolate according to the 2 numbers and add to the matrix
 
             # order,chunks,overlap
@@ -158,17 +166,19 @@ def calculate_error(self, loading_counter: int = 0):
 
    # interface.progressBar_update(self, 2)
     if self.toggle_progressBar == 1:
+        print_debug("retyrned")
         return
 
     normalization(self)
-
+    print_debug("befooore printing ")
     #interface.progressBar_update(self, 3)
-    if self.toggle_progressBar == 1:
-        return
+    # if self.toggle_progressBar == 1:
+    #     return
     plot_error_map(self, self.normalized_error, self.x_type, self.y_type)
+    print_debug("alooooo")
     # multithreading
     # https://stackoverflow.com/questions/2846653/how-can-i-use-threading-in-python
-    pass
+    
 
 
 def create_error_map_figure(self):

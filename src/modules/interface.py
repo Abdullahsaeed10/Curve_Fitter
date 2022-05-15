@@ -4,6 +4,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QSpinBox, QProgressBar, QMessageBox, QAction, QPushButton, QSlider, QComboBox, QLCDNumber, QStackedWidget, QStackedLayout, QWidget, QGroupBox, QHBoxLayout, QVBoxLayout, QDial, QLabel, QGridLayout, QToolButton
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
+from matplotlib.pyplot import bar
 from sympy import degree
 from modules import openfile
 from modules.curvefit import update_graph, update_latex
@@ -168,13 +169,15 @@ def toggle_fit_mode(self, mode):
 def progressBar_update(self, barpercent):
     self.startLoading.emit()
     print_debug("Progress bar update: " + str(barpercent))
+    print_debug("bar percent " + str(barpercent))
+   
     for self.current_progressBar  in range(barpercent):
         self.progressChanged.emit(self.current_progressBar+1)
         self.current_progressBar += 1
-    if (barpercent==100):
-        print_debug("the barpercent has reached 100 and enter the endLoading")
-        self.endLoading.emit()
-        return
+        if ( self.current_progressBar==100):
+            print_debug("the barpercent has reached 100 and enter the endLoading")
+            self.endLoading.emit()
+            return
     return self.current_progressBar
 # def progressBar_update(self, x):
 #     self.startLoading.emit()
@@ -207,6 +210,9 @@ def start_progressBar(self):
     self.cancel_button.show()
     self.progressBar.show()
 
+def finished_progressBar(self):
+    self.progressBar.hide()
+    self.cancel_button.hide()
 
 def stop_progressBar(self):
     print_debug("Stopping progress bar")
@@ -251,7 +257,7 @@ def init_connectors(self):
 
     # this is a signal that is emitted by the thread
     self.progressChanged.connect(self.progressBar.setValue)
-    self.endLoading.connect(lambda: stop_progressBar(self))
+    self.endLoading.connect(lambda: finished_progressBar(self))
     self.startLoading.connect(lambda: start_progressBar(self))
 
     self.progressBar.hide()

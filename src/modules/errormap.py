@@ -132,6 +132,11 @@ def calculate_error(self, loading_counter: int = 0):
     self.percentage_error = []
     for j in y:
         # to iterate on the y ranges
+        print_debug('percent *************    yyy')
+        print_debug(len(y))
+        print_debug(barPercent)
+        interface.progressBar_update(self, 2,barPercent)
+        barPercent= barPercent + barPercent_const 
         self.percentage_error_temp = []
         for i in x:
             # intrapolate according to the 2 numbers and add to the matrix

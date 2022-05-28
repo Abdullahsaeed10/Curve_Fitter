@@ -17,3 +17,12 @@ An application that illustrates the efficacy of multiple curve fitting and inter
 ## Installation
 
 ```pip install requirements.txt```
+
+## Team Members
+
+| Names             |
+| ----------------- |
+| Mohamed Nasser    |
+| Zeyad Mansour     |
+| Mariam Hanafy     |
+| Abdullah Saeed      |
